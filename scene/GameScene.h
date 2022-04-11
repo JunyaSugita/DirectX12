@@ -53,8 +53,8 @@ class GameScene {
 	/// </summary>
 
 	uint32_t textureHandle_ = 0;
-	uint32_t soundDatahandle_ = 0;
-	uint32_t voiceHandle_ = 0;
+
+	int32_t value_ = 0;
 
 	Sprite* sprite_ = nullptr;
 
