@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include <random>
 
 using namespace DirectX;
 
@@ -20,21 +21,34 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
 
-	worldTransform_.scale_ = { 5.0f, 5.0f, 5.0f };
-	worldTransform_.rotation_ = { XMConvertToRadians(45.0f), XMConvertToRadians(45.0f), 0.0f};
-	worldTransform_.translation_ = { 10.0f,10.0f,1.0f };
+	//乱数シード生成器
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスター
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲 (回転費用)
+	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
+	//乱数範囲(座標)
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
-	worldTransform_.Initialize();
-	viewProjection_.Initialize();
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+
+		//x,y,z 方向のスケーリングを設定
+		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine) };
+		worldTransform_[i].translation_ = {posDist(engine),posDist(engine),posDist(engine) };
+
+		worldTransform_[i].Initialize();
+		viewProjection_.Initialize();
+	}
 }
 
 void GameScene::Update() {
-	debugText_->SetPos(50, 70);
+	/*debugText_->SetPos(50, 70);
 	debugText_->Printf("translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y, worldTransform_.translation_.z);
 	debugText_->SetPos(50, 90);
 	debugText_->Printf("rotation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y, worldTransform_.rotation_.z);
 	debugText_->SetPos(50, 110);
-	debugText_->Printf("rotation:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y, worldTransform_.scale_.z);
+	debugText_->Printf("rotation:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y, worldTransform_.scale_.z);*/
 }
 
 void GameScene::Draw() {
@@ -63,7 +77,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
