@@ -30,11 +30,25 @@ void GameScene::Initialize() {
 	//乱数範囲(座標)
 	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
-	//親
+	//動かすやつ
 	worldTransform_[0].Initialize();
 
+	//動かさないやつ
+	worldTransform_[1].translation_ = { 0,0,10 };
+	worldTransform_[1].Initialize();
+	worldTransform_[2].translation_ = { -10,0,-10 };
+	worldTransform_[2].Initialize();
+	worldTransform_[3].translation_ = { 10,0,-10 };
+	worldTransform_[3].Initialize();
+
 	//カメラ視点座標
-	viewProjection_.eye = { 0, 50, -50 };
+	viewRadius = {
+		0,
+		50,
+		-50
+	};
+
+	viewProjection_.eye = { viewRadius.x, viewRadius.y, viewRadius.z };
 
 	//カメラの注視点座標を設定
 	viewProjection_.target = { 0,0,0 };
@@ -47,21 +61,20 @@ void GameScene::Update() {
 	XMFLOAT3 move = { 0,0,0 };
 
 	//キャラクターの移動速さ
-	const float kCharacterSpeed = 0.05f;
+	const float kCharacterSpeed = 0.5f;
 
 	//押した方向で移動ベクトル変更
 	if (input_->PushKey(DIK_UP)) {
-		move = { sin(worldTransform_[0].rotation_.y),0,cos(worldTransform_[0].rotation_.y)};
+		move = { sin(worldTransform_[0].rotation_.y) * kCharacterSpeed,0,cos(worldTransform_[0].rotation_.y) * kCharacterSpeed };
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
-		move = { -sin(worldTransform_[0].rotation_.y),0,-cos(worldTransform_[0].rotation_.y) };
+		move = { -sin(worldTransform_[0].rotation_.y) * kCharacterSpeed,0,-cos(worldTransform_[0].rotation_.y) * kCharacterSpeed };
 	}
 
-	//注視点移動(ベクトルの加算)
+	//移動(ベクトルの加算)
 	worldTransform_[0].translation_.x += move.x;
 	worldTransform_[0].translation_.y += move.y;
 	worldTransform_[0].translation_.z += move.z;
-
 	worldTransform_[0].UpdateMatrix();
 
 	//回転
@@ -83,13 +96,31 @@ void GameScene::Update() {
 		if (worldTransform_[0].rotation_.y < 0) {
 			worldTransform_[0].rotation_.y += 6.2832f;
 		}
+
+		//カメラ移動
+
+		viewProjection_.eye.x = worldTransform_[0].translation_.x +
+			-sin(worldTransform_[0].rotation_.y) * sqrt(viewRadius.x * viewRadius.x + viewRadius.y * viewRadius.y + viewRadius.z * viewRadius.z);
+
+		viewProjection_.eye.z = worldTransform_[0].translation_.z +
+			-cos(worldTransform_[0].rotation_.y) * sqrt(viewRadius.x * viewRadius.x + viewRadius.y * viewRadius.y + viewRadius.z * viewRadius.z);
+
+		viewProjection_.target.x = worldTransform_[0].translation_.x;
+		viewProjection_.target.y = worldTransform_[0].translation_.y;
+		viewProjection_.target.z = worldTransform_[0].translation_.z;
+
+		viewProjection_.UpdateMatrix();
+
 	}
 
 	debugText_->SetPos(50, 50);
 	debugText_->Printf(
-		"eye:(%f)", worldTransform_[0].rotation_.y
+		"move:(%f,%f,%f)", worldTransform_[0].translation_.x, worldTransform_[0].translation_.y, worldTransform_[0].translation_.z
 	);
-
+	debugText_->SetPos(50, 70);
+	debugText_->Printf(
+		"eye:(%f,%f,%f)", viewProjection_.eye.x, viewProjection_.eye.y, viewProjection_.eye.z
+	);
 }
 
 void GameScene::Draw() {
@@ -120,7 +151,10 @@ void GameScene::Draw() {
 	/// </summary>
 
 	model_->Draw(worldTransform_[0], viewProjection_, textureHandle_);
-	
+	model_->Draw(worldTransform_[1], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[2], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[3], viewProjection_, textureHandle_);
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
