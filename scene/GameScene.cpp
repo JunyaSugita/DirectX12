@@ -31,42 +31,10 @@ void GameScene::Initialize() {
 	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 	//親
-	worldTransform_[PartId::Root].Initialize();
-	//脊髄
-	worldTransform_[PartId::Spine].translation_ = { 0,4.5f,0 };
-	worldTransform_[PartId::Spine].parent_ = &worldTransform_[PartId::Root];
-	worldTransform_[PartId::Spine].Initialize();
-	//胸
-	worldTransform_[PartId::Chest].translation_ = { 0,-4.5f,0 };
-	worldTransform_[PartId::Chest].parent_ = &worldTransform_[PartId::Spine];
-	worldTransform_[PartId::Chest].Initialize();
-	//頭
-	worldTransform_[PartId::Head].translation_ = { 0,4.5f,0 };
-	worldTransform_[PartId::Head].parent_ = &worldTransform_[PartId::Chest];
-	worldTransform_[PartId::Head].Initialize();
-	//腕(左)
-	worldTransform_[PartId::ArmL].translation_ = { -4.5f,0,0 };
-	worldTransform_[PartId::ArmL].parent_ = &worldTransform_[PartId::Chest];
-	worldTransform_[PartId::ArmL].Initialize();
-	//腕(左)
-	worldTransform_[PartId::ArmR].translation_ = { 4.5f,0,0 };
-	worldTransform_[PartId::ArmR].parent_ = &worldTransform_[PartId::Chest];
-	worldTransform_[PartId::ArmR].Initialize();
-	//尻
-	worldTransform_[PartId::Hip].translation_ = { 0,-9.0f,0 };
-	worldTransform_[PartId::Hip].parent_ = &worldTransform_[PartId::Spine];
-	worldTransform_[PartId::Hip].Initialize();
-	//足(左)
-	worldTransform_[PartId::LegL].translation_ = { -4.5,-4.5f,0 };
-	worldTransform_[PartId::LegL].parent_ = &worldTransform_[PartId::Hip];
-	worldTransform_[PartId::LegL].Initialize();
-	//足(右)
-	worldTransform_[PartId::LegR].translation_ = { 4.5,-4.5f,0 };
-	worldTransform_[PartId::LegR].parent_ = &worldTransform_[PartId::Hip];
-	worldTransform_[PartId::LegR].Initialize();
+	worldTransform_[0].Initialize();
 
 	//カメラ視点座標
-	viewProjection_.eye = { 0, 0, -50 };
+	viewProjection_.eye = { 0, 50, -50 };
 
 	//カメラの注視点座標を設定
 	viewProjection_.target = { 0,0,0 };
@@ -79,65 +47,47 @@ void GameScene::Update() {
 	XMFLOAT3 move = { 0,0,0 };
 
 	//キャラクターの移動速さ
-	const float kCharacterSpeed = 0.2f;
+	const float kCharacterSpeed = 0.05f;
 
 	//押した方向で移動ベクトル変更
-	if (input_->PushKey(DIK_LEFT)) {
-		move = { -kCharacterSpeed,0,0 };
+	if (input_->PushKey(DIK_UP)) {
+		move = { sin(worldTransform_[0].rotation_.y),0,cos(worldTransform_[0].rotation_.y)};
 	}
-	else if (input_->PushKey(DIK_RIGHT)) {
-		move = { kCharacterSpeed,0,0 };
+	else if (input_->PushKey(DIK_DOWN)) {
+		move = { -sin(worldTransform_[0].rotation_.y),0,-cos(worldTransform_[0].rotation_.y) };
 	}
 
 	//注視点移動(ベクトルの加算)
-	worldTransform_[PartId::Root].translation_.x += move.x;
-	worldTransform_[PartId::Root].translation_.y += move.y;
-	worldTransform_[PartId::Root].translation_.z += move.z;
+	worldTransform_[0].translation_.x += move.x;
+	worldTransform_[0].translation_.y += move.y;
+	worldTransform_[0].translation_.z += move.z;
 
-	worldTransform_[PartId::Root].UpdateMatrix();
-	worldTransform_[PartId::Spine].UpdateMatrix();
-	worldTransform_[PartId::Chest].UpdateMatrix();
-	worldTransform_[PartId::Head].UpdateMatrix();
-	worldTransform_[PartId::ArmL].UpdateMatrix();
-	worldTransform_[PartId::ArmR].UpdateMatrix();
-	worldTransform_[PartId::Hip].UpdateMatrix();
-	worldTransform_[PartId::LegL].UpdateMatrix();
-	worldTransform_[PartId::LegR].UpdateMatrix();
+	worldTransform_[0].UpdateMatrix();
 
-	//上半身回転
+	//回転
 	{
-		//上半身回転速さ
-		const float kChestRotSpeed = 0.05f;
+		//回転速さ
+		const float RotSpeed = 0.05f;
 
 		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_U)) {
-			worldTransform_[PartId::Chest].rotation_.y -= kChestRotSpeed;
+		if (input_->PushKey(DIK_LEFT)) {
+			worldTransform_[0].rotation_.y -= RotSpeed;
 		}
-		else if (input_->PushKey(DIK_I)) {
-			worldTransform_[PartId::Chest].rotation_.y += kChestRotSpeed;
+		else if (input_->PushKey(DIK_RIGHT)) {
+			worldTransform_[0].rotation_.y += RotSpeed;
+		}
+
+		if (worldTransform_[0].rotation_.y >= 6.2832f) {
+			worldTransform_[0].rotation_.y -= 6.2832f;
+		}
+		if (worldTransform_[0].rotation_.y < 0) {
+			worldTransform_[0].rotation_.y += 6.2832f;
 		}
 	}
 
-	//下半身回転
-	{
-		//下半身回転速さ
-		const float kHipRotSpeed = 0.05f;
-
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_J)) {
-			worldTransform_[PartId::Hip].rotation_.y -= kHipRotSpeed;
-		}
-		else if (input_->PushKey(DIK_K)) {
-			worldTransform_[PartId::Hip].rotation_.y += kHipRotSpeed;
-		}
-	}
-
-	//デバッグ用表示
-	debugText_->SetPos(50, 30);
+	debugText_->SetPos(50, 50);
 	debugText_->Printf(
-		"Root:(%f,%f,%f)", worldTransform_[PartId::Root].translation_.x,
-		worldTransform_[PartId::Root].translation_.y,
-		worldTransform_[PartId::Root].translation_.z
+		"eye:(%f)", worldTransform_[0].rotation_.y
 	);
 
 }
@@ -169,15 +119,7 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
-	//model_->Draw(worldTransform_[PartId::Root], viewProjection_, textureHandle_);
-	//model_->Draw(worldTransform_[PartId::Spine], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::Chest], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::Head], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::ArmL], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::ArmR], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::Hip], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::LegL], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[PartId::LegR], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[0], viewProjection_, textureHandle_);
 	
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
