@@ -41,6 +41,16 @@ void GameScene::Initialize() {
 	worldTransform_[3].translation_ = { 10,0,-10 };
 	worldTransform_[3].Initialize();
 
+	for (int i = 4; i < 100; i++) {
+		worldTransform_[i].translation_ = { 0,0,0 };
+		worldTransform_[i].scale_ = { 0.3f,0.3f,0.3f };
+		bullet[i].isShot = 0;
+		bullet[i].moveX = 0;
+		bullet[i].moveY = 0;
+		bullet[i].moveZ = 0;
+		worldTransform_[i].Initialize();
+	}
+
 	//カメラ視点座標
 	viewRadius = {
 		0,
@@ -110,7 +120,34 @@ void GameScene::Update() {
 		viewProjection_.target.z = worldTransform_[0].translation_.z;
 
 		viewProjection_.UpdateMatrix();
+	}
 
+	//弾を撃つ
+	{
+		for (int i = 4; i < 100; i++) {
+			if (bullet[i].isShot == 0) {
+				worldTransform_[i].translation_ = { worldTransform_[0].translation_.x,worldTransform_[0].translation_.y,worldTransform_[0].translation_.z };
+			}
+			else if(bullet[i].isShot == 1) {
+				worldTransform_[i].translation_.x += bullet[i].moveX;
+				worldTransform_[i].translation_.y += bullet[i].moveY;
+				worldTransform_[i].translation_.z += bullet[i].moveZ;
+			}
+			worldTransform_[i].UpdateMatrix();
+		}
+
+		if (input_->PushKey(DIK_SPACE)) {
+			for (int i = 4; i < 100; i++) {
+				if (bullet[i].isShot == 0) {
+					bullet[i].isShot = 1;
+					bullet[i].moveX = sin(worldTransform_[0].rotation_.y);
+					bullet[i].moveY = 0;
+					bullet[i].moveZ = cos(worldTransform_[0].rotation_.y);
+					break;
+				}
+				worldTransform_[i].UpdateMatrix();
+			}
+		}
 	}
 
 	debugText_->SetPos(50, 50);
@@ -154,6 +191,10 @@ void GameScene::Draw() {
 	model_->Draw(worldTransform_[1], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[2], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[3], viewProjection_, textureHandle_);
+
+	for (size_t i = 4; i < _countof(worldTransform_); i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

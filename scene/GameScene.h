@@ -69,4 +69,15 @@ private: // メンバ変数
 	}VIEW_RADIUS;
 
 	VIEW_RADIUS viewRadius;
+
+	typedef struct {
+		float isShot;
+		float moveX;
+		float moveY;
+		float moveZ;
+	}BULLET;
+
+	float bulletSpeed;
+
+	BULLET bullet[100];
 };
