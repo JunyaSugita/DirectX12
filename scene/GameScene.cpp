@@ -1,10 +1,15 @@
 ﻿#include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include "AxisIndicator.h"
+#include "PrimitiveDrawer.h"
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+	delete model_;
+	delete debugCamera_;
+}
 
 void GameScene::Initialize() {
 
@@ -12,9 +17,59 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
+
+	//ファイル名を指定してテクスチャを読み込む
+	textureHandle_ = TextureManager::Load("mario.jpg");
+	//3Dモデルの生成
+	model_ = Model::Create();
+
+	//ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
+	//ビュープロジェクションの初期化
+	viewProjection_.Initialize();
+
+	//デバッグカメラの生成
+	debugCamera_ = new DebugCamera(1280,720);
+
+	//軸方向表示を有効にする
+	AxisIndicator::GetInstance()->SetVisible(true);
+	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
+
+	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
+	
+	//x,y,z方向のスケーリングを設定
+	worldTransform_.scale_ = { 5.0f,1.0f,1.0f };
+	//スケーリング行列
+	Matrix4 matScale;
+
+	matScale.m[0][0] = worldTransform_.scale_.x;
+	matScale.m[1][1] = worldTransform_.scale_.y;
+	matScale.m[2][2] = worldTransform_.scale_.z;
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (i == j) {
+				worldTransform_.matWorld_.m[i][j] = 1;
+			}
+			else {
+				worldTransform_.matWorld_.m[i][j] = 0;
+			}
+		}
+	}
+
+	for (int i = 0; i < 3; i++) {
+		worldTransform_.matWorld_.m[i][i] *= matScale.m[i][i];
+	}
+
+	//行列の転送
+	worldTransform_.TransferMatrix();
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+	debugCamera_->Update();
+}
 
 void GameScene::Draw() {
 
@@ -42,6 +97,12 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
+	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
+	for (int i = 0; i < 21; i++) {
+		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));
+		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i * 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
