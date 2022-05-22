@@ -39,66 +39,27 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	//x,y,z方向のローテを設定
-	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),Radian(45.0f) };
-	//ローテ行列
-	Matrix4 matRotZ;
+	//x,y,z軸周りの平行移動を設定
+	worldTransform_.translation_ = { 0.0f,10.0f,0.0f, };
+
+	//平行移動行列を宣言
+	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (i == j) {
-				matRotZ.m[i][j] = 1;
+				matTrans.m[i][j] = 1;
 			}
 			else {
-				matRotZ.m[i][j] = 0;
+				matTrans.m[i][j] = 0;
 			}
 		}
 	}
-	matRotZ.m[0][0] = cos(worldTransform_.rotation_.z);
-	matRotZ.m[0][1] = sin(worldTransform_.rotation_.z);
-	matRotZ.m[1][0] = -sin(worldTransform_.rotation_.z);
-	matRotZ.m[1][1] = cos(worldTransform_.rotation_.z);
 
-	Matrix4 matRotX;
-
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			if (i == j) {
-				matRotX.m[i][j] = 1;
-			}
-			else {
-				matRotX.m[i][j] = 0;
-			}
-		}
-	}
-	matRotX.m[1][1] = cos(worldTransform_.rotation_.x);
-	matRotX.m[1][2] = sin(worldTransform_.rotation_.x);
-	matRotX.m[2][1] = -sin(worldTransform_.rotation_.x);
-	matRotX.m[2][2] = cos(worldTransform_.rotation_.x);
-
-	Matrix4 matRotY;
-
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			if (i == j) {
-				matRotY.m[i][j] = 1;
-			}
-			else {
-				matRotY.m[i][j] = 0;
-			}
-		}
-	}
-	matRotY.m[0][0] = cos(worldTransform_.rotation_.y);
-	matRotY.m[0][2] = -sin(worldTransform_.rotation_.y);
-	matRotY.m[2][0] = sin(worldTransform_.rotation_.y);
-	matRotY.m[2][2] = cos(worldTransform_.rotation_.y);
-
-	Matrix4 matRot;
-
-	matRotZ *= matRotX;
-	matRotZ *= matRotY;
-	matRot = matRotZ;
-
+	matTrans.m[3][0] = worldTransform_.translation_.x;
+	matTrans.m[3][1] = worldTransform_.translation_.y;
+	matTrans.m[3][2] = worldTransform_.translation_.z;
+	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (i == j) {
@@ -110,8 +71,8 @@ void GameScene::Initialize() {
 		}
 	}
 
-	worldTransform_.matWorld_ *= matRot;
-
+	worldTransform_.matWorld_ *= matTrans;
+	
 	//行列の転送
 	worldTransform_.TransferMatrix();
 }
