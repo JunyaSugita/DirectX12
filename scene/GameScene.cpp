@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 
 	//デバッグカメラの生成
-	debugCamera_ = new DebugCamera(1280,720);
+	debugCamera_ = new DebugCamera(1280, 720);
 
 	//軸方向表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -38,15 +38,66 @@ void GameScene::Initialize() {
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
-	
-	//x,y,z方向のスケーリングを設定
-	worldTransform_.scale_ = { 5.0f,1.0f,1.0f };
-	//スケーリング行列
-	Matrix4 matScale;
 
-	matScale.m[0][0] = worldTransform_.scale_.x;
-	matScale.m[1][1] = worldTransform_.scale_.y;
-	matScale.m[2][2] = worldTransform_.scale_.z;
+	//x,y,z方向のローテを設定
+	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),Radian(45.0f) };
+	//ローテ行列
+	Matrix4 matRotZ;
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (i == j) {
+				matRotZ.m[i][j] = 1;
+			}
+			else {
+				matRotZ.m[i][j] = 0;
+			}
+		}
+	}
+	matRotZ.m[0][0] = cos(worldTransform_.rotation_.z);
+	matRotZ.m[0][1] = sin(worldTransform_.rotation_.z);
+	matRotZ.m[1][0] = -sin(worldTransform_.rotation_.z);
+	matRotZ.m[1][1] = cos(worldTransform_.rotation_.z);
+
+	Matrix4 matRotX;
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (i == j) {
+				matRotX.m[i][j] = 1;
+			}
+			else {
+				matRotX.m[i][j] = 0;
+			}
+		}
+	}
+	matRotX.m[1][1] = cos(worldTransform_.rotation_.x);
+	matRotX.m[1][2] = sin(worldTransform_.rotation_.x);
+	matRotX.m[2][1] = -sin(worldTransform_.rotation_.x);
+	matRotX.m[2][2] = cos(worldTransform_.rotation_.x);
+
+	Matrix4 matRotY;
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (i == j) {
+				matRotY.m[i][j] = 1;
+			}
+			else {
+				matRotY.m[i][j] = 0;
+			}
+		}
+	}
+	matRotY.m[0][0] = cos(worldTransform_.rotation_.y);
+	matRotY.m[0][2] = -sin(worldTransform_.rotation_.y);
+	matRotY.m[2][0] = sin(worldTransform_.rotation_.y);
+	matRotY.m[2][2] = cos(worldTransform_.rotation_.y);
+
+	Matrix4 matRot;
+
+	matRotZ *= matRotX;
+	matRotZ *= matRotY;
+	matRot = matRotZ;
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -59,9 +110,7 @@ void GameScene::Initialize() {
 		}
 	}
 
-	for (int i = 0; i < 3; i++) {
-		worldTransform_.matWorld_.m[i][i] *= matScale.m[i][i];
-	}
+	worldTransform_.matWorld_ *= matRot;
 
 	//行列の転送
 	worldTransform_.TransferMatrix();
@@ -123,4 +172,8 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+float GameScene::Radian(float r) {
+	return r * (PI / 180);
 }

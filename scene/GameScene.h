@@ -10,6 +10,8 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "DebugCamera.h"
+const float PI = 3.14159265f;
+
 
 /// <summary>
 /// ゲームシーン
@@ -41,6 +43,8 @@ class GameScene {
 	/// 描画
 	/// </summary>
 	void Draw();
+
+	float Radian(float r);
 
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
