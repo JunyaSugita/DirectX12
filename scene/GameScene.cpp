@@ -32,12 +32,18 @@ void GameScene::Initialize() {
 	//3Dモデルの生成
 	model_ = Model::Create();
 
+	/*worldTransforms_[0].Initialize();
+
+	worldTransforms_[1].Initialize();
+	worldTransforms_[1].translation_ = { 0,4.5f,0 };
+	worldTransforms_[1].parent_ = &worldTransforms_[0];*/
+
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		//ワールドトランスフォームの初期化
 		worldTransform.Initialize();
 
 		//x,y,z軸周りの平行移動を設定
-		worldTransform.translation_ = { dist(engine),dist(engine),dist(engine)};
+		worldTransform.translation_ = { dist(engine),dist(engine),dist(engine) };
 
 		//平行移動行列を宣言
 		Matrix4 matTrans = MathUtility::Matrix4Identity();
@@ -115,9 +121,7 @@ void GameScene::Initialize() {
 
 		Matrix4 matRot;
 
-		matRot = matRotZ;
-		matRot *= matRotX;
-		matRot *= matRotY;
+		matRot = matRotZ * matRotX * matRotY;
 
 		//単位行列を代入
 
@@ -132,16 +136,12 @@ void GameScene::Initialize() {
 			}
 		}
 
-		worldTransform.matWorld_ *= matTrans;
-		worldTransform.matWorld_ *= matRot;
+		
+		worldTransform.matWorld_ = matRot * matTrans;
 
 		//行列の転送
 		worldTransform.TransferMatrix();
 	}
-
-	//視野角
-	viewProjection_.fovAngleY = Radian(10.0f);
-
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -181,24 +181,56 @@ void GameScene::Update() {
 		//視点移動
 		viewProjection_.eye += move;
 
-		
+
 	}
 
-	//fov
+	//キャラクターの移動
 	{
-		//視野変更
-		if (input_->PushKey(DIK_UP)) {
-			viewProjection_.fovAngleY += Radian(1.0f);
-			if (viewProjection_.fovAngleY >= Radian(180.0f)) {
-				viewProjection_.fovAngleY = Radian(180.0f);
+		//キャラクターの移動ベクトル
+		Vector3 move = { 0,0,0 };
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_LEFT)) {
+			move.x -= 1.0f;
+		}
+		else if (input_->PushKey(DIK_RIGHT)) {
+			move.x += 1.0f;
+		}
+
+		worldTransforms_[0].translation_ += move;
+
+		//平行移動行列を宣言
+		Matrix4 matTrans = MathUtility::Matrix4Identity();
+
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (i == j) {
+					matTrans.m[i][j] = 1;
+				}
+				else {
+					matTrans.m[i][j] = 0;
+				}
 			}
 		}
-		else if (input_->PushKey(DIK_DOWN)) {
-			viewProjection_.fovAngleY -= Radian(1.0f);
-			if (viewProjection_.fovAngleY <= Radian(0.0f)) {
-				viewProjection_.fovAngleY = Radian(0.0f);
+
+		matTrans.m[3][0] = worldTransforms_[0].translation_.x;
+		matTrans.m[3][1] = worldTransforms_[0].translation_.y;
+		matTrans.m[3][2] = worldTransforms_[0].translation_.z;
+
+		//単位行列を代入
+
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (i == j) {
+					worldTransforms_[0].matWorld_.m[i][j] = 1;
+				}
+				else {
+					worldTransforms_[0].matWorld_.m[i][j] = 0;
+				}
 			}
 		}
+		worldTransforms_[0].matWorld_ *= matTrans;
+		//行列の転送
+		worldTransforms_[0].TransferMatrix();
 	}
 
 	//行列の再計算
@@ -230,7 +262,7 @@ void GameScene::Draw() {
 
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
-	/// </summary>
+	/// </summary> 
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
 	}
