@@ -32,126 +32,126 @@ void GameScene::Initialize() {
 	//3Dモデルの生成
 	model_ = Model::Create();
 
-	/*worldTransforms_[0].Initialize();
+	worldTransforms_[0].Initialize();
 
 	worldTransforms_[1].Initialize();
 	worldTransforms_[1].translation_ = { 0,4.5f,0 };
-	worldTransforms_[1].parent_ = &worldTransforms_[0];*/
+	worldTransforms_[1].parent_ = &worldTransforms_[0];
 
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		//ワールドトランスフォームの初期化
-		worldTransform.Initialize();
+	//for (WorldTransform& worldTransform : worldTransforms_) {
+	//	//ワールドトランスフォームの初期化
+	//	worldTransform.Initialize();
 
-		//x,y,z方向のスケーリングを設定
-		worldTransform.scale_ = { 5.0f,1.0f,1.0f };
-		//スケーリング行列
-		Matrix4 matScale;
+	//	//x,y,z方向のスケーリングを設定
+	//	worldTransform.scale_ = { 5.0f,1.0f,1.0f };
+	//	//スケーリング行列
+	//	Matrix4 matScale;
 
-		matScale.m[0][0] = worldTransform.scale_.x;
-		matScale.m[1][1] = worldTransform.scale_.y;
-		matScale.m[2][2] = worldTransform.scale_.z;
-		matScale.m[3][3] = 1.0f;
+	//	matScale.m[0][0] = worldTransform.scale_.x;
+	//	matScale.m[1][1] = worldTransform.scale_.y;
+	//	matScale.m[2][2] = worldTransform.scale_.z;
+	//	matScale.m[3][3] = 1.0f;
 
-		//x,y,z軸周りの平行移動を設定
-		worldTransform.translation_ = { dist(engine),dist(engine),dist(engine) };
+	//	//x,y,z軸周りの平行移動を設定
+	//	worldTransform.translation_ = { dist(engine),dist(engine),dist(engine) };
 
-		//平行移動行列を宣言
-		Matrix4 matTrans = MathUtility::Matrix4Identity();
+	//	//平行移動行列を宣言
+	//	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (i == j) {
-					matTrans.m[i][j] = 1;
-				}
-				else {
-					matTrans.m[i][j] = 0;
-				}
-			}
-		}
+	//	for (int i = 0; i < 4; i++) {
+	//		for (int j = 0; j < 4; j++) {
+	//			if (i == j) {
+	//				matTrans.m[i][j] = 1;
+	//			}
+	//			else {
+	//				matTrans.m[i][j] = 0;
+	//			}
+	//		}
+	//	}
 
-		matTrans.m[3][0] = worldTransform.translation_.x;
-		matTrans.m[3][1] = worldTransform.translation_.y;
-		matTrans.m[3][2] = worldTransform.translation_.z;
+	//	matTrans.m[3][0] = worldTransform.translation_.x;
+	//	matTrans.m[3][1] = worldTransform.translation_.y;
+	//	matTrans.m[3][2] = worldTransform.translation_.z;
 
 
-		worldTransform.rotation_ = { rot(engine),rot(engine),rot(engine) };
-		//Z軸回転
-		Matrix4 matRotZ;
-		//設定
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (i == j) {
-					matRotZ.m[i][j] = 1;
-				}
-				else {
-					matRotZ.m[i][j] = 0;
-				}
-			}
-		}
-		matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
-		matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
-		matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
-		matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
+	//	worldTransform.rotation_ = { rot(engine),rot(engine),rot(engine) };
+	//	//Z軸回転
+	//	Matrix4 matRotZ;
+	//	//設定
+	//	for (int i = 0; i < 4; i++) {
+	//		for (int j = 0; j < 4; j++) {
+	//			if (i == j) {
+	//				matRotZ.m[i][j] = 1;
+	//			}
+	//			else {
+	//				matRotZ.m[i][j] = 0;
+	//			}
+	//		}
+	//	}
+	//	matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
+	//	matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
+	//	matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
+	//	matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
 
-		//X軸回転
-		Matrix4 matRotX;
-		//設定
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (i == j) {
-					matRotX.m[i][j] = 1;
-				}
-				else {
-					matRotX.m[i][j] = 0;
-				}
-			}
-		}
-		matRotX.m[1][1] = cos(worldTransform.rotation_.x);
-		matRotX.m[1][2] = sin(worldTransform.rotation_.x);
-		matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
-		matRotX.m[2][2] = cos(worldTransform.rotation_.x);
+	//	//X軸回転
+	//	Matrix4 matRotX;
+	//	//設定
+	//	for (int i = 0; i < 4; i++) {
+	//		for (int j = 0; j < 4; j++) {
+	//			if (i == j) {
+	//				matRotX.m[i][j] = 1;
+	//			}
+	//			else {
+	//				matRotX.m[i][j] = 0;
+	//			}
+	//		}
+	//	}
+	//	matRotX.m[1][1] = cos(worldTransform.rotation_.x);
+	//	matRotX.m[1][2] = sin(worldTransform.rotation_.x);
+	//	matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
+	//	matRotX.m[2][2] = cos(worldTransform.rotation_.x);
 
-		//Y軸回転
-		Matrix4 matRotY;
-		//設定
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (i == j) {
-					matRotY.m[i][j] = 1;
-				}
-				else {
-					matRotY.m[i][j] = 0;
-				}
-			}
-		}
-		matRotY.m[0][0] = cos(worldTransform.rotation_.y);
-		matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
-		matRotY.m[2][0] = sin(worldTransform.rotation_.y);
-		matRotY.m[2][2] = cos(worldTransform.rotation_.y);
+	//	//Y軸回転
+	//	Matrix4 matRotY;
+	//	//設定
+	//	for (int i = 0; i < 4; i++) {
+	//		for (int j = 0; j < 4; j++) {
+	//			if (i == j) {
+	//				matRotY.m[i][j] = 1;
+	//			}
+	//			else {
+	//				matRotY.m[i][j] = 0;
+	//			}
+	//		}
+	//	}
+	//	matRotY.m[0][0] = cos(worldTransform.rotation_.y);
+	//	matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
+	//	matRotY.m[2][0] = sin(worldTransform.rotation_.y);
+	//	matRotY.m[2][2] = cos(worldTransform.rotation_.y);
 
-		Matrix4 matRot;
+	//	Matrix4 matRot;
 
-		matRot = matRotZ * matRotX * matRotY;
+	//	matRot = matRotZ * matRotX * matRotY;
 
-		//単位行列を代入
+	//	//単位行列を代入
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (i == j) {
-					worldTransform.matWorld_.m[i][j] = 1;
-				}
-				else {
-					worldTransform.matWorld_.m[i][j] = 0;
-				}
-			}
-		}
+	//	for (int i = 0; i < 4; i++) {
+	//		for (int j = 0; j < 4; j++) {
+	//			if (i == j) {
+	//				worldTransform.matWorld_.m[i][j] = 1;
+	//			}
+	//			else {
+	//				worldTransform.matWorld_.m[i][j] = 0;
+	//			}
+	//		}
+	//	}
 
-		
-		worldTransform.matWorld_ = matScale * matRot * matTrans;
+	//	
+	//	worldTransform.matWorld_ = matScale * matRot * matTrans;
 
-		//行列の転送
-		worldTransform.TransferMatrix();
-	}
+	//	//行列の転送
+	//	worldTransform.TransferMatrix();
+	//}
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -181,11 +181,11 @@ void GameScene::Update() {
 		//移動速度
 		const float kEyeSpeed = 0.2f;
 		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_W)) {
-			move.z += kEyeSpeed;
+		if (input_->PushKey(DIK_A)) {
+			move.x -= kEyeSpeed;
 		}
-		else if (input_->PushKey(DIK_S)) {
-			move.z -= kEyeSpeed;
+		else if (input_->PushKey(DIK_D)) {
+			move.x += kEyeSpeed;
 		}
 
 		//視点移動
@@ -273,9 +273,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary> 
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		model_->Draw(worldTransform, viewProjection_, textureHandle_);
-	}
+	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
+	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
+
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	for (int i = 0; i < 21; i++) {
 		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));
