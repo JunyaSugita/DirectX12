@@ -42,6 +42,16 @@ void GameScene::Initialize() {
 		//ワールドトランスフォームの初期化
 		worldTransform.Initialize();
 
+		//x,y,z方向のスケーリングを設定
+		worldTransform.scale_ = { 5.0f,1.0f,1.0f };
+		//スケーリング行列
+		Matrix4 matScale;
+
+		matScale.m[0][0] = worldTransform.scale_.x;
+		matScale.m[1][1] = worldTransform.scale_.y;
+		matScale.m[2][2] = worldTransform.scale_.z;
+		matScale.m[3][3] = 1.0f;
+
 		//x,y,z軸周りの平行移動を設定
 		worldTransform.translation_ = { dist(engine),dist(engine),dist(engine) };
 
@@ -137,7 +147,7 @@ void GameScene::Initialize() {
 		}
 
 		
-		worldTransform.matWorld_ = matRot * matTrans;
+		worldTransform.matWorld_ = matScale * matRot * matTrans;
 
 		//行列の転送
 		worldTransform.TransferMatrix();
