@@ -33,11 +33,39 @@ void GameScene::Initialize() {
 	//3Dモデルの生成
 	model_ = Model::Create();
 
-	worldTransforms_[0].Initialize();
+	worldTransforms_[PartId::kRoot].Initialize();
 
-	worldTransforms_[1].Initialize();
-	worldTransforms_[1].translation_ = { 0,4.5f,0 };
-	worldTransforms_[1].parent_ = &worldTransforms_[0];
+	worldTransforms_[PartId::kSpine].Initialize();
+	worldTransforms_[PartId::kSpine].translation_ = { 0,4.5f,0 };
+	worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[PartId::kRoot];
+
+	worldTransforms_[PartId::kChest].Initialize();
+	worldTransforms_[PartId::kChest].translation_ = { 0,2.0f,0 };
+	worldTransforms_[PartId::kChest].parent_ = &worldTransforms_[PartId::kSpine];
+
+	worldTransforms_[PartId::kHead].Initialize();
+	worldTransforms_[PartId::kHead].translation_ = { 0,2.0f,0 };
+	worldTransforms_[PartId::kHead].parent_ = &worldTransforms_[PartId::kChest];
+
+	worldTransforms_[PartId::kArmL].Initialize();
+	worldTransforms_[PartId::kArmL].translation_ = { 2.0f,0,0 };
+	worldTransforms_[PartId::kArmL].parent_ = &worldTransforms_[PartId::kChest];
+
+	worldTransforms_[PartId::kArmR].Initialize();
+	worldTransforms_[PartId::kArmR].translation_ = { -2.0f,0,0 };
+	worldTransforms_[PartId::kArmR].parent_ = &worldTransforms_[PartId::kChest];
+
+	worldTransforms_[PartId::kHip].Initialize();
+	worldTransforms_[PartId::kHip].translation_ = { 0,0,0 };
+	worldTransforms_[PartId::kHip].parent_ = &worldTransforms_[PartId::kSpine];
+
+	worldTransforms_[PartId::kLegR].Initialize();
+	worldTransforms_[PartId::kLegR].translation_ = { 2.0f,-2.0f,0 };
+	worldTransforms_[PartId::kLegR].parent_ = &worldTransforms_[PartId::kHip];
+
+	worldTransforms_[PartId::kLegL].Initialize();
+	worldTransforms_[PartId::kLegL].translation_ = { -2.0f,-2.0f,0 };
+	worldTransforms_[PartId::kLegL].parent_ = &worldTransforms_[PartId::kHip];
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		MatCalc(worldTransform);
@@ -75,12 +103,33 @@ void GameScene::Update() {
 			move.x += 1.0f;
 		}
 
-		worldTransforms_[0].translation_ += move;
+		worldTransforms_[PartId::kRoot].translation_ += move;
 
-		MatCalc(worldTransforms_[0]);
+		//キャラクターの腕回転ベクトル
+		Vector3 Arot = { 0,0,0 };
+		if (input_->PushKey(DIK_Q)) {
+			Arot.y -= 1.0f;
+		}
+		else if (input_->PushKey(DIK_E)) {
+			Arot.y += 1.0f;
+		}
 
-		worldTransforms_[1].matWorld_ = worldTransforms_[0].matWorld_;
-		MatCalc(worldTransforms_[1]);
+		worldTransforms_[PartId::kChest].rotation_ += Arot;
+
+		//キャラクターの足回転ベクトル
+		Vector3 Lrot = { 0,0,0 };
+		if (input_->PushKey(DIK_A)) {
+			Lrot.y -= 1.0f;
+		}
+		else if (input_->PushKey(DIK_D)) {
+			Lrot.y += 1.0f;
+		}
+
+		worldTransforms_[PartId::kHip].rotation_ += Lrot;
+
+		for (int i = 0; i < 9; i++) {
+			MatCalc(worldTransforms_[i]);
+		}
 	}
 }
 
@@ -110,9 +159,12 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary> 
-	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
-	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
-
+	for (int i = 0; i < 9;i++) {
+		if (i == 0 || i == 1) {
+			continue;
+		}
+		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
+	}
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	for (int i = 0; i < 21; i++) {
 		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));

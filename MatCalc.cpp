@@ -116,6 +116,9 @@ void MatCalc(WorldTransform& worldTransform) {
 
 	worldTransform.matWorld_ *= matScale * matRot * matTrans;
 
+	if (worldTransform.parent_ != NULL) {
+		worldTransform.matWorld_ *= worldTransform.parent_->matWorld_;
+	}
 
 	//s—ñ‚Ì“]‘—
 	worldTransform.TransferMatrix();
