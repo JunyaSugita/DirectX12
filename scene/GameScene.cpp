@@ -35,6 +35,14 @@ void GameScene::Initialize() {
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 
+	//カメラ視点座標
+	viewProjection_.eye = { 0, 50, -50 };
+
+	//カメラの注視点座標を設定
+	viewProjection_.target = { 0,0,0 };
+
+	viewProjection_.Initialize();
+
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
 
@@ -84,10 +92,10 @@ void GameScene::Draw() {
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
-	for (int i = 0; i < 21; i++) {
-		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, -10, i * 10 - 100), Vector3(-100, -10, i * 10 - 100), Vector4(255, 0, 0, 255));
-		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i * 10 - 100, -10, 100), Vector3(i * 10 - 100, -10, -100), Vector4(0, 0, 255, 255));
-	}
+	//for (int i = 0; i < 21; i++) {
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, -10, i * 10 - 100), Vector3(-100, -10, i * 10 - 100), Vector4(255, 0, 0, 255));
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i * 10 - 100, -10, 100), Vector3(i * 10 - 100, -10, -100), Vector4(0, 0, 255, 255));
+	//}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
