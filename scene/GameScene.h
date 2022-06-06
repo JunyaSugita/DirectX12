@@ -17,21 +17,6 @@ const float PI = 3.14159265f;
 /// ゲームシーン
 /// </summary>
 class GameScene {
-public:
-	enum PartId {
-		kRoot,
-		kSpine,
-		kChest,
-		kHead,
-		kArmL,
-		kArmR,
-		kHip,
-		kLegL,
-		kLegR,
-
-		kNumPartId
-	};
-
 
   public: // メンバ関数
 	/// <summary>
@@ -74,7 +59,7 @@ public:
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[9];
+	WorldTransform worldTransform_;
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
