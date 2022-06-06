@@ -96,7 +96,6 @@ class WinApp {
 	~WinApp() = default;
 	WinApp(const WinApp&) = delete;
 	const WinApp& operator=(const WinApp&) = delete;
-
   private: // メンバ変数
 	// Window関連
 	HWND hwnd_ = nullptr;   // ウィンドウハンドル
