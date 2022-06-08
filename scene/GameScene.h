@@ -69,4 +69,7 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	 
+	int scene;
+	int angle;
 };
