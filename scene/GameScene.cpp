@@ -33,14 +33,14 @@ void GameScene::Initialize() {
 	MatCalc(worldTransform_);
 
 	//ビュープロジェクションの初期化
+	viewProjection_.Initialize();
 	//カメラ視点座標
 	viewProjection_.eye = { 0, 50, -50 };
 
 	//カメラの注視点座標を設定
 	viewProjection_.target = { 0,0,0 };
 
-	viewProjection_.Initialize();
-
+	viewProjection_.UpdateMatrix();
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -103,6 +103,9 @@ void GameScene::Update() {
 				worldTransform_.rotation_.y += 6.2832f;
 			}
 		}
+
+		MatCalc(worldTransform_);
+
 	}
 	else if(scene == 1) {
 		if (input_->TriggerKey(DIK_Q)) {
@@ -113,31 +116,29 @@ void GameScene::Update() {
 		frontVec.y = 0;
 		frontVec.normalize();
 		//右ベクトル
-		Vector3 rightVec = { 0,0,0 };
 		Vector3 yVec = { 0,1,0 };
 
-		rightVec = yVec.cross(frontVec);
+		Vector3 rightVec = frontVec.cross(yVec);
 		frontVec.normalize();
 		//キャラクターの移動ベクトル
 		Vector3 move = { 0,0,0 };
 
 		if (input_->PushKey(DIK_W)) {
-			move += frontVec;
+			worldTransform_.translation_ += frontVec;
 		}
 		if (input_->PushKey(DIK_S)) {
-			move += -frontVec;
+			worldTransform_.translation_ += frontVec * -1;
 		}
 		if (input_->PushKey(DIK_A)) {
-			move += -rightVec - frontVec;
+			worldTransform_.translation_ += rightVec;
 		}
 		if (input_->PushKey(DIK_D)) {
-			move += rightVec + frontVec;
+			worldTransform_.translation_ += rightVec * -1;
 		}
 
 		//注視点移動(ベクトルの加算)
-		worldTransform_.translation_ = move;
+		MatCalc(worldTransform_);
 
-		angle = 0;
 		if (input_->PushKey(DIK_LEFT)) {
 			angle--;
 			if (angle < 0) {
@@ -151,15 +152,16 @@ void GameScene::Update() {
 			}
 		}
 		
-		viewProjection_.eye.y = cos(angle) * 50;
-		viewProjection_.eye.z = sin(angle) * 50;
-		viewProjection_.Initialize();
+		viewProjection_.eye.x = sin(Radian(angle)) * 50;
+		viewProjection_.eye.z = -cos(Radian(angle)) * 50;
+		viewProjection_.UpdateMatrix();
 
 		debugText_->SetPos(0, 0);
 		debugText_->Printf("move = %f,%f", move.x, move.z);
+		debugText_->SetPos(0, 20);
+		debugText_->Printf("angle = %d", angle);
 	}
 	
-	MatCalc(worldTransform_);
 }
 
 void GameScene::Draw() {
