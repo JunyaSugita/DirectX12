@@ -11,6 +11,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete player_;
 }
 
 void GameScene::Initialize() {
@@ -19,6 +20,11 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
+
+	//自キャラ生成
+	player_ = new Player();
+	//初期化
+	player_->Initialize();
 
 	//乱数シード生成器
 	std::random_device seed_gen;
@@ -30,7 +36,7 @@ void GameScene::Initialize() {
 	//3Dモデルの生成
 	model_ = Model::Create();
 
-	MatCalc(worldTransform_);
+	//MatCalc(worldTransform_);
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -51,8 +57,9 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	debugCamera_->Update();
+	player_->Update();
 
-	MatCalc(worldTransform_);
+	//MatCalc(worldTransform_);
 }
 
 void GameScene::Draw() {
@@ -81,8 +88,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary> 
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-
+	player_->Draw();
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	for (int i = 0; i < 21; i++) {
 		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, -10, i * 10 - 100), Vector3(-100, -10, i * 10 - 100), Vector4(255, 0, 0, 255));
