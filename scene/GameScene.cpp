@@ -116,7 +116,7 @@ void GameScene::Update() {
 		frontVec.y = 0;
 		frontVec.normalize();
 		//右ベクトル
-		Vector3 yVec = { 0,1,0 };
+		Vector3 yVec = { 0,-1,0 };
 
 		Vector3 rightVec = frontVec.cross(yVec);
 		frontVec.normalize();
@@ -130,10 +130,10 @@ void GameScene::Update() {
 			worldTransform_.translation_ += frontVec * -1;
 		}
 		if (input_->PushKey(DIK_A)) {
-			worldTransform_.translation_ += rightVec;
+			worldTransform_.translation_ += rightVec * -1;
 		}
 		if (input_->PushKey(DIK_D)) {
-			worldTransform_.translation_ += rightVec * -1;
+			worldTransform_.translation_ += rightVec;
 		}
 
 		//注視点移動(ベクトルの加算)
@@ -156,12 +156,10 @@ void GameScene::Update() {
 		viewProjection_.eye.z = -cos(Radian(angle)) * 50;
 		viewProjection_.UpdateMatrix();
 
-		debugText_->SetPos(0, 0);
-		debugText_->Printf("move = %f,%f", move.x, move.z);
-		debugText_->SetPos(0, 20);
-		debugText_->Printf("angle = %d", angle);
+		
 	}
-	
+	debugText_->SetPos(0, 0);
+	debugText_->Printf("scene = %d", scene);
 }
 
 void GameScene::Draw() {
