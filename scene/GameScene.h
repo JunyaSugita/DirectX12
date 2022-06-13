@@ -48,7 +48,6 @@ class GameScene {
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
-	Player* player_ = nullptr;
 
 	//テクスチャ
 	uint32_t textureHandle_ = 0;
@@ -65,4 +64,8 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	 
+	//自キャラ
+	Player* player_ = nullptr;
+
 };

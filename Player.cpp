@@ -16,7 +16,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle){
 }
 
 void Player::Update(){
-	Vector3 move = { 0,0,0 };
+	Vector3 move = { 0.0f,0.0f,0.0f };
 
 	if (input_->PushKey(DIK_W)) {
 		move.z += 1.0f;
@@ -32,7 +32,7 @@ void Player::Update(){
 	}
 	MatCalc(worldTransform_);
 
-	debugText_->SetPos(0, 0);
+	debugText_->SetPos(0.0f, 0.0f);
 	debugText_->Printf("player = %f,%f,%f", worldTransform_.translation_.x, worldTransform_.translation_.y, worldTransform_.translation_.z);
 
 }
