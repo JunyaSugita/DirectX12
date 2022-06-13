@@ -5,12 +5,26 @@
 #include "DebugText.h"
 #include "MatCalc.h"
 
+/// <summary>
+/// ©ƒLƒƒƒ‰
+/// </summary>
 class Player{
 public:
+	/// <summary>
+	/// ‰Šú‰»
+	/// </summary>
+	/// <param name="model"></param>
+	/// <param name="textureHandle"></param>
 	void Initialize(Model* model,uint32_t textureHandle);
 
+	/// <summary>
+	/// XV
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// •`‰æ
+	/// </summary>
 	void Draw();
 
 private:
