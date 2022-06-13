@@ -24,7 +24,7 @@ void GameScene::Initialize() {
 	//自キャラ生成
 	player_ = new Player();
 	//初期化
-	player_->Initialize();
+	player_->Initialize(model_,textureHandle_);
 
 	//乱数シード生成器
 	std::random_device seed_gen;
