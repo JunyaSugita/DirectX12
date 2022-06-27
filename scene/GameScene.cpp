@@ -104,8 +104,6 @@ void GameScene::Update() {
 			}
 		}
 
-		MatCalc(worldTransform_);
-
 	}
 	else if(scene == 1) {
 		if (input_->TriggerKey(DIK_Q)) {
@@ -137,7 +135,7 @@ void GameScene::Update() {
 		}
 
 		//注視点移動(ベクトルの加算)
-		MatCalc(worldTransform_);
+
 
 		if (input_->PushKey(DIK_LEFT)) {
 			angle--;
@@ -158,6 +156,7 @@ void GameScene::Update() {
 
 		
 	}
+	MatCalc(worldTransform_);
 	debugText_->SetPos(0, 0);
 	debugText_->Printf("scene = %d", scene);
 }
