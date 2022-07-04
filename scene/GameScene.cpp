@@ -159,7 +159,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary> 
-	for (int i = 0; i < 9;i++) {
+	for (int i = 0; i < 9; i++) {
 		if (i == 0 || i == 1) {
 			continue;
 		}
