@@ -73,13 +73,16 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	static const int MODEL_COUNT = 1000;
+	static const int MODEL_COUNT = 10;
 	WorldTransform worldTransforms_[MODEL_COUNT];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
+
+	//角度
+	float angle = 0;
 
 	/// <summary>
 	/// ゲームシーン用

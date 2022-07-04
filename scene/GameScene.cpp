@@ -37,8 +37,8 @@ void GameScene::Initialize() {
 		worldTransform.Initialize();
 	}
 
-	for (int i = 0; i < MODEL_COUNT; i++) {
-		worldTransforms_[i].translation_ = { -20.0f + (5.0f * (i % 81 % 9)),20.0f - (5.0f * (i % 81 / 9)) ,10.0f + (5.0f *(i / 81))};
+	for (int i = 0; i < 10; i++) {
+		worldTransforms_[i].translation_ = { cos(Radian(angle + i * 36)) * 50,sin(Radian(angle + i * 36)) * 50,10.0f };
 	}
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
@@ -65,6 +65,11 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	//debugCamera_->Update();
+
+	angle++;
+	for (int i = 0; i < 10; i++) {
+		worldTransforms_[i].translation_ = { cos(Radian(angle + i * 36)) * 5,sin(Radian(angle + i * 36)) * 5,10.0f };
+	}
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		MatCalc(worldTransform);
