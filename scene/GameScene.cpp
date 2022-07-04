@@ -38,10 +38,7 @@ void GameScene::Initialize() {
 	}
 
 	for (int i = 0; i < MODEL_COUNT; i++) {
-		if (i % 2 == 0 && i / 9 % 2 == 1) {
-			continue;
-		}
-		worldTransforms_[i].translation_ = { -20.0f + (5.0f * (i % 9)),20.0f - (5.0f * (i / 9)) ,10.0f};
+		worldTransforms_[i].translation_ = { -20.0f + (5.0f * (i % 81 % 9)),20.0f - (5.0f * (i % 81 / 9)) ,10.0f + (5.0f *(i / 81))};
 	}
 
 	for (WorldTransform& worldTransform : worldTransforms_) {

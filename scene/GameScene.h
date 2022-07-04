@@ -73,7 +73,7 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	static const int MODEL_COUNT = 81;
+	static const int MODEL_COUNT = 1000;
 	WorldTransform worldTransforms_[MODEL_COUNT];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
