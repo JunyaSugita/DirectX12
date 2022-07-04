@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "DebugText.h"
@@ -74,7 +73,8 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[9];
+	static const int MODEL_COUNT = 81;
+	WorldTransform worldTransforms_[MODEL_COUNT];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
