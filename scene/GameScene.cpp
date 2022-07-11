@@ -45,9 +45,13 @@ void GameScene::Initialize() {
 		MatCalc(worldTransform);
 	}
 
-
 	//ビュープロジェクションの初期化
-	viewProjection_.Initialize();
+	viewProjections_[1].eye = { 100,100,100 };
+	viewProjections_[2].eye = { -100,50,0 };
+
+	for (ViewProjection& viewProjection : viewProjections_) {
+		viewProjection.Initialize();
+	}
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -55,7 +59,7 @@ void GameScene::Initialize() {
 	//軸方向表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjections_[cameraNum]);
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
@@ -73,6 +77,16 @@ void GameScene::Update() {
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		MatCalc(worldTransform);
+	}
+
+	if (input_->TriggerKey(DIK_SPACE)) {
+		cameraNum++;
+		if (cameraNum >= CAMERA_COUNT) {
+			cameraNum = 0;
+		}
+		if (cameraNum < 0) {
+			cameraNum = CAMERA_COUNT - 1;
+		}
 	}
 }
 
@@ -103,7 +117,7 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary> 
 	for (WorldTransform& worldTransform : worldTransforms_) {
-		model_->Draw(worldTransform, viewProjection_, textureHandle_);
+		model_->Draw(worldTransform, viewProjections_[cameraNum], textureHandle_);
 	}
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
