@@ -1,16 +1,17 @@
 ﻿#include "GameScene.h"
-#include "TextureManager.h"
-#include <cassert>
 #include "AxisIndicator.h"
-#include "PrimitiveDrawer.h"
-#include "random"
 #include "MatCalc.h"
+#include "PrimitiveDrawer.h"
+#include "TextureManager.h"
+#include "random"
+#include <cassert>
 
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete player_;
 }
 
 void GameScene::Initialize() {
@@ -30,28 +31,12 @@ void GameScene::Initialize() {
 
 	//ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
-	//3Dモデルの生成
+	// 3Dモデルの生成
 	model_ = Model::Create();
 
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		worldTransform.Initialize();
-	}
-
-	for (int i = 0; i < 10; i++) {
-		worldTransforms_[i].translation_ = { cos(Radian(angle + i * 36)) * 50,sin(Radian(angle + i * 36)) * 50,10.0f };
-	}
-
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		MatCalc(worldTransform);
-	}
-
 	//ビュープロジェクションの初期化
-	viewProjections_[1].eye = { 100,100,100 };
-	viewProjections_[2].eye = { -100,50,0 };
 
-	for (ViewProjection& viewProjection : viewProjections_) {
-		viewProjection.Initialize();
-	}
+	viewProjection_.Initialize();
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -59,35 +44,38 @@ void GameScene::Initialize() {
 	//軸方向表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjections_[cameraNum]);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-
+	//自キャラ生成
+	player_ = new Player();
+	//自キャラの初期化
+	player_->Initialize(model_, textureHandle_);
 }
 
 void GameScene::Update() {
-	//debugCamera_->Update();
-
-	angle++;
-	for (int i = 0; i < 10; i++) {
-		worldTransforms_[i].translation_ = { cos(Radian(angle + i * 36)) * 5,sin(Radian(angle + i * 36)) * 5,10.0f };
-	}
-
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		MatCalc(worldTransform);
-	}
-
-	if (input_->TriggerKey(DIK_SPACE)) {
-		cameraNum++;
-		if (cameraNum >= CAMERA_COUNT) {
-			cameraNum = 0;
-		}
-		if (cameraNum < 0) {
-			cameraNum = CAMERA_COUNT - 1;
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_P)) {
+		if (isDebugCameraActive_ == false) {
+			isDebugCameraActive_ = true;
+		} else {
+			isDebugCameraActive_ = false;
 		}
 	}
+#endif
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		viewProjection_ = debugCamera_->GetViewProjection();
+		viewProjection_.TransferMatrix();
+	} else {
+		viewProjection_.TransferMatrix();
+	}
+
+	//自キャラ更新
+	player_->Update();
 }
 
 void GameScene::Draw() {
@@ -115,15 +103,15 @@ void GameScene::Draw() {
 
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
-	/// </summary> 
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		model_->Draw(worldTransform, viewProjections_[cameraNum], textureHandle_);
-	}
+	/// </summary>
+	//自キャラの更新
+	player_->Draw(viewProjection_);
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
-	//for (int i = 0; i < 21; i++) {
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i * 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
+	// for (int i = 0; i < 21; i++) {
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i
+	//* 10 - 100), Vector4(255, 0, 0, 255)); 	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i
+	//* 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
 	//}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -146,6 +134,4 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
-float GameScene::Radian(float r) {
-	return r * (PI / 180);
-}
+float GameScene::Radian(float r) { return r * (PI / 180); }

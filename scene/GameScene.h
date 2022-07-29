@@ -1,41 +1,27 @@
 ﻿#pragma once
 #include "Audio.h"
-#include "DirectXCommon.h"
+#include "DebugCamera.h"
 #include "DebugText.h"
+#include "DirectXCommon.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include "DebugCamera.h"
 const float PI = 3.14159265f;
 
+#include "Player.h"
 
 /// <summary>
 /// ゲームシーン
 /// </summary>
 class GameScene {
-public:
-	enum PartId {
-		kRoot,
-		kSpine,
-		kChest,
-		kHead,
-		kArmL,
-		kArmR,
-		kHip,
-		kLegL,
-		kLegR,
 
-		kNumPartId
-	};
-
-
-public: // メンバ関数
-  /// <summary>
-  /// コンストクラタ
-  /// </summary>
+  public: // メンバ関数
+	      /// <summary>
+	      /// コンストクラタ
+	      /// </summary>
 	GameScene();
 
 	/// <summary>
@@ -60,27 +46,25 @@ public: // メンバ関数
 
 	float Radian(float r);
 
-private: // メンバ変数
+  private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
+	//自キャラ
+	Player* player_ = nullptr;
 
 	//テクスチャ
 	uint32_t textureHandle_ = 0;
 
-	//3Dモデル
+	// 3Dモデル
 	Model* model_ = nullptr;
-
-	//ワールドトランスフォーム
-	static const int MODEL_COUNT = 10;
-	WorldTransform worldTransforms_[MODEL_COUNT];
 	//ビュープロジェクション
-	static const int CAMERA_COUNT = 3;
-	ViewProjection viewProjections_[CAMERA_COUNT];
+	ViewProjection viewProjection_;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
+	bool isDebugCameraActive_ = false;
 
 	//角度
 	float angle = 0;
@@ -88,6 +72,7 @@ private: // メンバ変数
 	//カメラの種類
 	int cameraNum = 0;
 
+	
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

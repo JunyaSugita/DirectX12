@@ -1,5 +1,8 @@
 #pragma once
-#include "GameScene.h"
+#include "Matrix4.h"
+#include "Vector3.h"
+#include "WorldTransform.h"
+#include "math.h"
 
 void SetMatScale(Matrix4& matScale, const Vector3& scale);
 
