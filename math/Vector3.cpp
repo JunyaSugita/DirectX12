@@ -1,4 +1,21 @@
 #include "Vector3.h"
+#include <math.h>
+
+float Vector3::length() const { return sqrt((x * x) + (y * y) + (z * z)); }
+
+Vector3& Vector3::normalize() {
+	float len = length();
+	if (len != 0) {
+		return *this /= length();
+	}
+	return *this;
+}
+
+float Vector3::dot(const Vector3& v) const { return (x * v.x) + (y * v.y) + (z * v.z); }
+
+Vector3 Vector3::cross(const Vector3& v) const {
+	return Vector3((y * v.z) - (z * v.y), (z * v.x) - (x * v.z), (x * v.y) - (y - v.x));
+}
 
 Vector3& Vector3::operator*=(const Matrix4& m2) {
 	Vector3 ans;

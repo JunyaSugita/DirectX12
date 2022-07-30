@@ -52,7 +52,7 @@ class GameScene {
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
 	//自キャラ
-	Player* player_ = nullptr;
+	//Player* player_ = nullptr;
 
 	//テクスチャ
 	uint32_t textureHandle_ = 0;
@@ -67,12 +67,22 @@ class GameScene {
 	bool isDebugCameraActive_ = false;
 
 	//角度
-	float angle = 0;
+	float angleX = 0;
+	float angleY = 0;
 
 	//カメラの種類
 	int cameraNum = 0;
 
-	
+	WorldTransform worldTransform_;
+
+	bool isHit;
+
+	Sprite* sprite_ = nullptr;
+	uint32_t scopeHandle_ = 0;
+
+	//視点の正面ベクトル
+	Vector3 frontVec;
+
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

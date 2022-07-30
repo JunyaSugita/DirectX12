@@ -11,7 +11,8 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
-	delete player_;
+	// delete player_;
+	delete sprite_;
 }
 
 void GameScene::Initialize() {
@@ -21,18 +22,13 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	//乱数シード生成器
-	std::random_device seed_gen;
-	//メルセンヌ・ツイスターの乱数エンジン
-	std::mt19937_64 engine(seed_gen());
-	//乱数範囲の指定
-	std::uniform_real_distribution<float> dist(-10.0f, 10.0f);
-	std::uniform_real_distribution<float> rot(0.0f, PI * 2);
-
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandle_ = TextureManager::Load("white1x1.png");
 	// 3Dモデルの生成
 	model_ = Model::Create();
+
+	worldTransform_.translation_ = {0, 5, -20};
+	MatCalc(worldTransform_);
 
 	//ビュープロジェクションの初期化
 
@@ -49,10 +45,14 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
+	isHit = false;
+
+	scopeHandle_ = TextureManager::Load("red10x10.png");
+	sprite_ = Sprite::Create(scopeHandle_, {635, 355});
 	//自キャラ生成
-	player_ = new Player();
+	// player_ = new Player();
 	//自キャラの初期化
-	player_->Initialize(model_, textureHandle_);
+	// player_->Initialize(model_, textureHandle_);
 }
 
 void GameScene::Update() {
@@ -66,16 +66,64 @@ void GameScene::Update() {
 	}
 #endif
 
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		viewProjection_ = debugCamera_->GetViewProjection();
-		viewProjection_.TransferMatrix();
+	/*if (isDebugCameraActive_) {
+	    debugCamera_->Update();
+	    viewProjection_ = debugCamera_->GetViewProjection();
+	    viewProjection_.TransferMatrix();
 	} else {
-		viewProjection_.TransferMatrix();
+	    viewProjection_.TransferMatrix();
+	}*/
+
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (isHit == false) {
+			isHit = true;
+			textureHandle_ = TextureManager::Load("black1x1.png");
+		} else {
+			isHit = false;
+			textureHandle_ = TextureManager::Load("white1x1.png");
+		}
 	}
 
+	//注視点移動(ベクトルの加算)
+	float angleSpeed = 0.2f;
+
+	if (input_->PushKey(DIK_RIGHT)) {
+		angleX += angleSpeed;
+	}
+	if (input_->PushKey(DIK_LEFT)) {
+		angleX -= angleSpeed;
+	}
+
+	if (input_->PushKey(DIK_UP)) {
+		angleY += angleSpeed;
+	}
+	if (input_->PushKey(DIK_DOWN)) {
+		angleY -= angleSpeed;
+	}
+
+	
+
+	viewProjection_.target.x = angleX;
+	viewProjection_.target.y = angleY;
+	viewProjection_.UpdateMatrix();
+
+	//視点の正面ベクトルの更新
+	frontVec = 
+	{
+	  viewProjection_.target.x - viewProjection_.eye.x,
+	  viewProjection_.target.y - viewProjection_.eye.y,
+	  viewProjection_.target.z - viewProjection_.eye.z
+	};
+
+	frontVec.normalize();
+
+	debugText_->SetPos(0, 0);
+	debugText_->Printf("%f,%f,%f", frontVec.x, frontVec.y, frontVec.z);
+
+	
+
 	//自キャラ更新
-	player_->Update();
+	// player_->Update();
 }
 
 void GameScene::Draw() {
@@ -105,7 +153,9 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	//自キャラの更新
-	player_->Draw(viewProjection_);
+	// player_->Draw(viewProjection_);
+
+	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	// for (int i = 0; i < 21; i++) {
@@ -124,7 +174,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-
+	sprite_->Draw();
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);
 	//
