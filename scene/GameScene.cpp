@@ -74,16 +74,6 @@ void GameScene::Update() {
 	    viewProjection_.TransferMatrix();
 	}*/
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		if (isHit == false) {
-			isHit = true;
-			textureHandle_ = TextureManager::Load("black1x1.png");
-		} else {
-			isHit = false;
-			textureHandle_ = TextureManager::Load("white1x1.png");
-		}
-	}
-
 	//注視点移動(ベクトルの加算)
 	float angleSpeed = 0.2f;
 
@@ -101,26 +91,44 @@ void GameScene::Update() {
 		angleY -= angleSpeed;
 	}
 
-	
-
 	viewProjection_.target.x = angleX;
 	viewProjection_.target.y = angleY;
 	viewProjection_.UpdateMatrix();
 
 	//視点の正面ベクトルの更新
-	frontVec = 
-	{
+	frontVec = {
 	  viewProjection_.target.x - viewProjection_.eye.x,
 	  viewProjection_.target.y - viewProjection_.eye.y,
-	  viewProjection_.target.z - viewProjection_.eye.z
-	};
+	  viewProjection_.target.z - viewProjection_.eye.z};
 
 	frontVec.normalize();
 
-	debugText_->SetPos(0, 0);
-	debugText_->Printf("%f,%f,%f", frontVec.x, frontVec.y, frontVec.z);
+	boxVec = {
+	  worldTransform_.translation_.x - viewProjection_.eye.x,
+	  worldTransform_.translation_.y - viewProjection_.eye.y,
+	  worldTransform_.translation_.z - viewProjection_.eye.z};
 
-	
+	boxVec.normalize();
+
+	float zNum = worldTransform_.translation_.z - viewProjection_.eye.z;
+
+	frontVec *= zNum;
+	boxVec *= zNum;
+
+	Vector3 hitCheck;
+	hitCheck.x = frontVec.x - boxVec.x;
+	hitCheck.y = frontVec.y - boxVec.y;
+	hitCheck.z = frontVec.z - boxVec.z;
+
+	if (hitCheck.x <= 1.0f && hitCheck.x >= -1.0f &&
+		hitCheck.y <= 1.0f && hitCheck.y >= -1.0f &&
+		hitCheck.z <= 1.0f && hitCheck.z >= -1.0f) {
+		debugText_->SetPos(0, 0);
+		debugText_->Printf("Hit!");
+		textureHandle_ = TextureManager::Load("black1x1.png");
+	} else {
+		textureHandle_ = TextureManager::Load("white1x1.png");
+	}
 
 	//自キャラ更新
 	// player_->Update();

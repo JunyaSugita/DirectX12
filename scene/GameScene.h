@@ -82,6 +82,8 @@ class GameScene {
 
 	//視点の正面ベクトル
 	Vector3 frontVec;
+	//対象とのベクトル
+	Vector3 boxVec;
 
 	/// <summary>
 	/// ゲームシーン用
