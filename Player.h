@@ -7,6 +7,9 @@
 #include "MatCalc.h"
 #include "ViewProjection.h"
 #include "DebugCamera.h"
+#include "PlayerBullet.h"
+#include <memory>
+#include <list>
 
 class Player {
   public:
@@ -19,6 +22,9 @@ class Player {
 	///•`‰æ
 	void Draw(ViewProjection& viewProjection);
 
+	//UŒ‚
+	void Attack();
+
   private:
 	//ƒ[ƒ‹ƒh•ÏŠ·
 	WorldTransform worldTransform_;
@@ -29,4 +35,7 @@ class Player {
 
 	Input* input_;
 	DebugText* debugText_;
+
+	//’e
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 };
