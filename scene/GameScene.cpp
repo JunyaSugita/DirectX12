@@ -46,10 +46,13 @@ void GameScene::Initialize() {
 	}
 
 	//ビュープロジェクションの初期化
-
 	viewProjection_.Initialize();
 	viewProjection_.target = worldTransforms_[0].translation_;
 	viewProjection_.UpdateMatrix();
+
+	//スプライト
+	scopeHandle_ = TextureManager::Load("reticle.png");
+	sprite_ = Sprite::Create(scopeHandle_, {576, 296});
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -73,29 +76,38 @@ void GameScene::Update() {
 	//注視点移動(ベクトルの加算)
 	float targetSpeed = 0.3f;
 
-	if (input_->PushKey(DIK_W)) {
+	if (input_->PushKey(DIK_UP)) {
 		viewProjection_.target.y += targetSpeed;
 	}
-	if (input_->PushKey(DIK_S)) {
+	if (input_->PushKey(DIK_DOWN)) {
 		viewProjection_.target.y -= targetSpeed;
 	}
-	if (input_->PushKey(DIK_A)) {
+	if (input_->PushKey(DIK_LEFT)) {
 		viewProjection_.target.x -= targetSpeed;
 	}
-	if (input_->PushKey(DIK_D)) {
+	if (input_->PushKey(DIK_RIGHT)) {
 		viewProjection_.target.x += targetSpeed;
 	}
 
-	float fovSpeed = 0.02f;
-	if (input_->PushKey(DIK_DOWN)) {
-		if (viewProjection_.fovAngleY < PI) {
-			viewProjection_.fovAngleY += fovSpeed;
-		}
+	float fovSpeed = 0.05f;
+
+	if (input_->PushKey(DIK_SPACE)) {
+		scope_ = true;
+	} else {
+		scope_ = false;
 	}
-	if (input_->PushKey(DIK_UP)) {
-		if (viewProjection_.fovAngleY > 0.01f) {
-			viewProjection_.fovAngleY -= fovSpeed;
-		}
+
+	if (scope_ == false) {
+		scopeAngle_ = 1.0f;
+	} else {
+		scopeAngle_ = 0.5f;
+	}
+
+	if (viewProjection_.fovAngleY > scopeAngle_) {
+		viewProjection_.fovAngleY -= fovSpeed;
+	}
+	if (viewProjection_.fovAngleY < scopeAngle_) {
+		viewProjection_.fovAngleY += fovSpeed;
 	}
 
 	viewProjection_.UpdateMatrix();
@@ -134,8 +146,8 @@ void GameScene::Draw() {
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	// for (int i = 0; i < 21; i++) {
 	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i
-	//* 10 - 100), Vector4(255, 0, 0, 255)); 	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i *
-	//10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
+	//* 10 - 100), Vector4(255, 0, 0, 255)); 	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i
+	//* 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
 	//}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -148,6 +160,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	if (scope_ == true) {
+		sprite_->Draw();
+	}
 
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);

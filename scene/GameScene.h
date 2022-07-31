@@ -82,13 +82,21 @@ private: // メンバ変数
 	DebugCamera* debugCamera_ = nullptr;
 
 	//角度
-	float angle = 0;
+	float angle_ = 0;
 
 	//カメラの種類
-	int cameraNum = 0;
+	int cameraNum_ = 0;
 
 	//注視点カウント
-	int targetCount = 0;
+	int targetCount_ = 0;
+
+	//スコープモード
+	bool scope_ = false;
+	float scopeAngle_;
+
+	//スプライト
+	Sprite* sprite_ = nullptr;
+	uint32_t scopeHandle_ = 0;
 
 	/// <summary>
 	/// ゲームシーン用
