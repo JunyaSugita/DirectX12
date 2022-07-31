@@ -48,6 +48,7 @@ void GameScene::Initialize() {
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 	viewProjection_.target = worldTransforms_[0].translation_;
+	viewProjection_.fovAngleY = 1.0f;
 	viewProjection_.UpdateMatrix();
 
 	//スプライト
