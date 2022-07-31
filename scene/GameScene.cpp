@@ -48,6 +48,8 @@ void GameScene::Initialize() {
 	//ビュープロジェクションの初期化
 
 	viewProjection_.Initialize();
+	viewProjection_.target = worldTransforms_[0].translation_;
+	viewProjection_.UpdateMatrix();
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -76,8 +78,37 @@ void GameScene::Update() {
 	}
 
 	//注視点移動(ベクトルの加算)
+	if (viewProjection_.target.x != worldTransforms_[targetCount].translation_.x) {
+		if (viewProjection_.target.x > worldTransforms_[targetCount].translation_.x) {
+			viewProjection_.target.x -=
+			  (viewProjection_.target.x - worldTransforms_[targetCount].translation_.x) / 30;
+		}
+		if (viewProjection_.target.x < worldTransforms_[targetCount].translation_.x) {
+			viewProjection_.target.x -=
+			  (viewProjection_.target.x - worldTransforms_[targetCount].translation_.x) / 30;
+		}
+	}
+	if (viewProjection_.target.y != worldTransforms_[targetCount].translation_.y) {
+		if (viewProjection_.target.y > worldTransforms_[targetCount].translation_.y) {
+			viewProjection_.target.y -=
+			  (viewProjection_.target.y - worldTransforms_[targetCount].translation_.y) / 30;
+		}
+		if (viewProjection_.target.y < worldTransforms_[targetCount].translation_.y) {
+			viewProjection_.target.y -=
+			  (viewProjection_.target.y - worldTransforms_[targetCount].translation_.y) / 30;
+		}
+	}
+	if (viewProjection_.target.z != worldTransforms_[targetCount].translation_.z) {
+		if (viewProjection_.target.z > worldTransforms_[targetCount].translation_.z) {
+			viewProjection_.target.z -=
+			  (viewProjection_.target.z - worldTransforms_[targetCount].translation_.z) / 30;
+		}
+		if (viewProjection_.target.z < worldTransforms_[targetCount].translation_.z) {
+			viewProjection_.target.z -=
+			  (viewProjection_.target.z - worldTransforms_[targetCount].translation_.z) / 30;
+		}
+	}
 
-	viewProjection_.target = worldTransforms_[targetCount].translation_;
 	viewProjection_.UpdateMatrix();
 }
 
