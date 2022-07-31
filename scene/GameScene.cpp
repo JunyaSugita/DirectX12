@@ -27,7 +27,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
-	worldTransform_.translation_ = {0, 5, -20};
+	worldTransform_.translation_ = {5, 5, -40};
 	MatCalc(worldTransform_);
 
 	//ビュープロジェクションの初期化
@@ -125,7 +125,7 @@ void GameScene::Update() {
 		hitCheck.z <= 1.0f && hitCheck.z >= -1.0f) {
 		debugText_->SetPos(0, 0);
 		debugText_->Printf("Hit!");
-		textureHandle_ = TextureManager::Load("black1x1.png");
+		textureHandle_ = TextureManager::Load("ray.jpg");
 	} else {
 		textureHandle_ = TextureManager::Load("white1x1.png");
 	}
