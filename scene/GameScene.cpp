@@ -90,27 +90,15 @@ void GameScene::Update() {
 		viewProjection_.target.x += targetSpeed;
 	}
 
-	float fovSpeed = 0.05f;
-
-	if (input_->PushKey(DIK_SPACE)) {
-		scope_ = true;
-	} else {
-		scope_ = false;
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (scope_ == false) {
+			scope_ = true;
+			viewProjection_.fovAngleY = 0.5f;
+		} else {
+			scope_ = false;
+			viewProjection_.fovAngleY = 1.0f;
+		}
 	}
-
-	if (scope_ == false) {
-		scopeAngle_ = 1.0f;
-	} else {
-		scopeAngle_ = 0.5f;
-	}
-
-	if (viewProjection_.fovAngleY > scopeAngle_) {
-		viewProjection_.fovAngleY -= fovSpeed;
-	}
-	if (viewProjection_.fovAngleY < scopeAngle_) {
-		viewProjection_.fovAngleY += fovSpeed;
-	}
-
 	viewProjection_.UpdateMatrix();
 }
 

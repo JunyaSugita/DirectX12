@@ -92,7 +92,6 @@ private: // メンバ変数
 
 	//スコープモード
 	bool scope_ = false;
-	float scopeAngle_;
 
 	//スプライト
 	Sprite* sprite_ = nullptr;
