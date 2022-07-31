@@ -52,8 +52,10 @@ void GameScene::Initialize() {
 	viewProjection_.UpdateMatrix();
 
 	//スプライト
-	scopeHandle_ = TextureManager::Load("reticle.png");
-	sprite_ = Sprite::Create(scopeHandle_, {576, 296});
+	scopeHandle_ = TextureManager::Load("scope.png");
+	reticleHandle_ = TextureManager::Load("reticle.png");
+	reticleSprite_ = Sprite::Create(reticleHandle_, {576, 296});
+	scopeSprite_ = Sprite::Create(scopeHandle_, {0, 0});
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -92,23 +94,35 @@ void GameScene::Update() {
 
 	float fovSpeed = 0.05f;
 
-	if (input_->PushKey(DIK_SPACE)) {
-		scope_ = true;
-	} else {
-		scope_ = false;
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (scope_ == false) {
+			scope_ = true;
+			viewProjection_.fovAngleY = 0.5f;
+		} else {
+			scope_ = false;
+		}
 	}
 
 	if (scope_ == false) {
-		scopeAngle_ = 1.0f;
+		viewProjection_.fovAngleY = 1.0f;
 	} else {
-		scopeAngle_ = 0.5f;
+		if (input_->TriggerKey(DIK_W)) {
+			scopeAngle_ = 0.2f;
+		}
+		if (input_->TriggerKey(DIK_S)) {
+			scopeAngle_ = 0.5f;
+		}
 	}
 
-	if (viewProjection_.fovAngleY > scopeAngle_) {
-		viewProjection_.fovAngleY -= fovSpeed;
-	}
-	if (viewProjection_.fovAngleY < scopeAngle_) {
-		viewProjection_.fovAngleY += fovSpeed;
+	if (scope_ == true) {
+		if (viewProjection_.fovAngleY > scopeAngle_) {
+			viewProjection_.fovAngleY -= fovSpeed;
+		}
+		if (viewProjection_.fovAngleY < scopeAngle_) {
+			viewProjection_.fovAngleY += fovSpeed;
+		}
+	} else {
+		scopeAngle_ = 0.5f;
 	}
 
 	viewProjection_.UpdateMatrix();
@@ -162,7 +176,8 @@ void GameScene::Draw() {
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
 	if (scope_ == true) {
-		sprite_->Draw();
+		reticleSprite_->Draw();
+		scopeSprite_->Draw();
 	}
 
 	// デバッグテキストの描画

@@ -92,10 +92,12 @@ private: // メンバ変数
 
 	//スコープモード
 	bool scope_ = false;
-	float scopeAngle_;
+	float scopeAngle_ = 0.5f;
 
 	//スプライト
-	Sprite* sprite_ = nullptr;
+	Sprite* reticleSprite_ = nullptr;
+	Sprite* scopeSprite_ = nullptr;
+	uint32_t reticleHandle_ = 0;
 	uint32_t scopeHandle_ = 0;
 
 	/// <summary>
