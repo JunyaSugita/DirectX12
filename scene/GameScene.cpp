@@ -66,43 +66,38 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	// debugCamera_->Update();
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		targetCount++;
-		if (targetCount > 2) {
-			targetCount = 0;
-		}
-	}
-
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		MatCalc(worldTransform);
 	}
 
 	//注視点移動(ベクトルの加算)
-	if (viewProjection_.target.x != worldTransforms_[targetCount].translation_.x) {
-		if (targetCount == 2) {
-			if (viewProjection_.target.x > worldTransforms_[targetCount].translation_.x) {
-				viewProjection_.target.x -= 0.2f;
-			}
-			if (viewProjection_.target.x < worldTransforms_[targetCount].translation_.x) {
-				viewProjection_.target.x += 0.2f;
-			}
-		} else {
-			if (viewProjection_.target.x > worldTransforms_[targetCount].translation_.x) {
-				viewProjection_.target.x -= 0.1f;
-			}
-			if (viewProjection_.target.x < worldTransforms_[targetCount].translation_.x) {
-				viewProjection_.target.x += 0.1f;
-			}
+	float targetSpeed = 0.3f;
+
+	if (input_->PushKey(DIK_W)) {
+		viewProjection_.target.y += targetSpeed;
+	}
+	if (input_->PushKey(DIK_S)) {
+		viewProjection_.target.y -= targetSpeed;
+	}
+	if (input_->PushKey(DIK_A)) {
+		viewProjection_.target.x -= targetSpeed;
+	}
+	if (input_->PushKey(DIK_D)) {
+		viewProjection_.target.x += targetSpeed;
+	}
+
+	float fovSpeed = 0.02f;
+	if (input_->PushKey(DIK_DOWN)) {
+		if (viewProjection_.fovAngleY < PI) {
+			viewProjection_.fovAngleY += fovSpeed;
 		}
 	}
-	if (viewProjection_.target.y != worldTransforms_[targetCount].translation_.y) {
-		if (viewProjection_.target.y > worldTransforms_[targetCount].translation_.y) {
-			viewProjection_.target.y -= 0.2f;
-		}
-		if (viewProjection_.target.y < worldTransforms_[targetCount].translation_.y) {
-			viewProjection_.target.y += 0.2f;
+	if (input_->PushKey(DIK_UP)) {
+		if (viewProjection_.fovAngleY > 0.01f) {
+			viewProjection_.fovAngleY -= fovSpeed;
 		}
 	}
+
 	viewProjection_.UpdateMatrix();
 }
 
