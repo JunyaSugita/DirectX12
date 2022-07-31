@@ -79,36 +79,30 @@ void GameScene::Update() {
 
 	//注視点移動(ベクトルの加算)
 	if (viewProjection_.target.x != worldTransforms_[targetCount].translation_.x) {
-		if (viewProjection_.target.x > worldTransforms_[targetCount].translation_.x) {
-			viewProjection_.target.x -=
-			  (viewProjection_.target.x - worldTransforms_[targetCount].translation_.x) / 30;
-		}
-		if (viewProjection_.target.x < worldTransforms_[targetCount].translation_.x) {
-			viewProjection_.target.x -=
-			  (viewProjection_.target.x - worldTransforms_[targetCount].translation_.x) / 30;
+		if (targetCount == 2) {
+			if (viewProjection_.target.x > worldTransforms_[targetCount].translation_.x) {
+				viewProjection_.target.x -= 0.2f;
+			}
+			if (viewProjection_.target.x < worldTransforms_[targetCount].translation_.x) {
+				viewProjection_.target.x += 0.2f;
+			}
+		} else {
+			if (viewProjection_.target.x > worldTransforms_[targetCount].translation_.x) {
+				viewProjection_.target.x -= 0.1f;
+			}
+			if (viewProjection_.target.x < worldTransforms_[targetCount].translation_.x) {
+				viewProjection_.target.x += 0.1f;
+			}
 		}
 	}
 	if (viewProjection_.target.y != worldTransforms_[targetCount].translation_.y) {
 		if (viewProjection_.target.y > worldTransforms_[targetCount].translation_.y) {
-			viewProjection_.target.y -=
-			  (viewProjection_.target.y - worldTransforms_[targetCount].translation_.y) / 30;
+			viewProjection_.target.y -= 0.2f;
 		}
 		if (viewProjection_.target.y < worldTransforms_[targetCount].translation_.y) {
-			viewProjection_.target.y -=
-			  (viewProjection_.target.y - worldTransforms_[targetCount].translation_.y) / 30;
+			viewProjection_.target.y += 0.2f;
 		}
 	}
-	if (viewProjection_.target.z != worldTransforms_[targetCount].translation_.z) {
-		if (viewProjection_.target.z > worldTransforms_[targetCount].translation_.z) {
-			viewProjection_.target.z -=
-			  (viewProjection_.target.z - worldTransforms_[targetCount].translation_.z) / 30;
-		}
-		if (viewProjection_.target.z < worldTransforms_[targetCount].translation_.z) {
-			viewProjection_.target.z -=
-			  (viewProjection_.target.z - worldTransforms_[targetCount].translation_.z) / 30;
-		}
-	}
-
 	viewProjection_.UpdateMatrix();
 }
 
