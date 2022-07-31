@@ -1,10 +1,10 @@
 ﻿#include "GameScene.h"
-#include "TextureManager.h"
-#include <cassert>
 #include "AxisIndicator.h"
-#include "PrimitiveDrawer.h"
-#include "random"
 #include "MatCalc.h"
+#include "PrimitiveDrawer.h"
+#include "TextureManager.h"
+#include "random"
+#include <cassert>
 
 GameScene::GameScene() {}
 
@@ -30,16 +30,16 @@ void GameScene::Initialize() {
 
 	//ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
-	//3Dモデルの生成
+	// 3Dモデルの生成
 	model_ = Model::Create();
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		worldTransform.Initialize();
 	}
 
-	for (int i = 0; i < 10; i++) {
-		worldTransforms_[i].translation_ = { cos(Radian(angle + i * 36)) * 50,sin(Radian(angle + i * 36)) * 50,10.0f };
-	}
+	worldTransforms_[0].translation_ = {0, 5, 0};
+	worldTransforms_[1].translation_ = {-5, -5, 0};
+	worldTransforms_[2].translation_ = {5, -5, 0};
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		MatCalc(worldTransform);
@@ -59,16 +59,16 @@ void GameScene::Initialize() {
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
-
-
 }
 
 void GameScene::Update() {
-	//debugCamera_->Update();
+	// debugCamera_->Update();
 
-	angle++;
-	for (int i = 0; i < 10; i++) {
-		worldTransforms_[i].translation_ = { cos(Radian(angle + i * 36)) * 5,sin(Radian(angle + i * 36)) * 5,10.0f };
+	if (input_->TriggerKey(DIK_SPACE)) {
+		targetCount++;
+		if (targetCount > 2) {
+			targetCount = 0;
+		}
 	}
 
 	for (WorldTransform& worldTransform : worldTransforms_) {
@@ -77,8 +77,7 @@ void GameScene::Update() {
 
 	//注視点移動(ベクトルの加算)
 
-	viewProjection_.eye.x = sin(Radian(angle)) * 50;
-	viewProjection_.eye.z = -cos(Radian(angle)) * 50;
+	viewProjection_.target = worldTransforms_[targetCount].translation_;
 	viewProjection_.UpdateMatrix();
 }
 
@@ -107,15 +106,16 @@ void GameScene::Draw() {
 
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
-	/// </summary> 
+	/// </summary>
 	for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
 	}
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
-	//for (int i = 0; i < 21; i++) {
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i * 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
+	// for (int i = 0; i < 21; i++) {
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i
+	//* 10 - 100), Vector4(255, 0, 0, 255)); 	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i *
+	//10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
 	//}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -138,6 +138,4 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
-float GameScene::Radian(float r) {
-	return r * (PI / 180);
-}
+float GameScene::Radian(float r) { return r * (PI / 180); }
