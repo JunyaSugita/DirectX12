@@ -55,7 +55,7 @@ class GameScene {
 	//Player* player_ = nullptr;
 
 	//テクスチャ
-	uint32_t textureHandle_ = 0;
+	uint32_t textureHandle_[3];
 
 	// 3Dモデル
 	Model* model_ = nullptr;
@@ -73,17 +73,17 @@ class GameScene {
 	//カメラの種類
 	int cameraNum = 0;
 
-	WorldTransform worldTransform_;
+	WorldTransform worldTransforms_[3];
 
-	bool isHit;
+	bool isHit_;
 
 	Sprite* sprite_ = nullptr;
 	uint32_t scopeHandle_ = 0;
 
 	//視点の正面ベクトル
-	Vector3 frontVec;
+	Vector3 frontVecs_[3];
 	//対象とのベクトル
-	Vector3 boxVec;
+	Vector3 boxVecs_[3];
 
 	/// <summary>
 	/// ゲームシーン用

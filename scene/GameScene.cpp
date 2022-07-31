@@ -23,12 +23,19 @@ void GameScene::Initialize() {
 	debugText_ = DebugText::GetInstance();
 
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("white1x1.png");
+	textureHandle_[0] = TextureManager::Load("white1x1.png");
+	textureHandle_[1] = TextureManager::Load("white1x1.png");
+	textureHandle_[2] = TextureManager::Load("white1x1.png");
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
-	worldTransform_.translation_ = {5, 5, -40};
-	MatCalc(worldTransform_);
+	worldTransforms_[0].translation_ = {5, 0, -30};
+	worldTransforms_[1].translation_ = {0, 7, 0};
+	worldTransforms_[2].translation_ = {-5, -5, -20};
+
+	for (WorldTransform& worldTransform : worldTransforms_) {
+		MatCalc(worldTransform);
+	}
 
 	//ビュープロジェクションの初期化
 
@@ -45,7 +52,7 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	isHit = false;
+	isHit_ = false;
 
 	scopeHandle_ = TextureManager::Load("red10x10.png");
 	sprite_ = Sprite::Create(scopeHandle_, {635, 355});
@@ -96,38 +103,59 @@ void GameScene::Update() {
 	viewProjection_.UpdateMatrix();
 
 	//視点の正面ベクトルの更新
-	frontVec = {
-	  viewProjection_.target.x - viewProjection_.eye.x,
-	  viewProjection_.target.y - viewProjection_.eye.y,
-	  viewProjection_.target.z - viewProjection_.eye.z};
+	for (int i = 0; i < 3; i++) {
+		frontVecs_[i] = {
+		  viewProjection_.target.x - viewProjection_.eye.x,
+		  viewProjection_.target.y - viewProjection_.eye.y,
+		  viewProjection_.target.z - viewProjection_.eye.z
+		};
 
-	frontVec.normalize();
+		frontVecs_[i].normalize();
+	}
 
-	boxVec = {
-	  worldTransform_.translation_.x - viewProjection_.eye.x,
-	  worldTransform_.translation_.y - viewProjection_.eye.y,
-	  worldTransform_.translation_.z - viewProjection_.eye.z};
+	
 
-	boxVec.normalize();
+	for (int i = 0; i < 3; i++) {
+		boxVecs_[i] = {
+		  worldTransforms_[i].translation_.x - viewProjection_.eye.x,
+		  worldTransforms_[i].translation_.y - viewProjection_.eye.y,
+		  worldTransforms_[i].translation_.z - viewProjection_.eye.z
+		};
 
-	float zNum = worldTransform_.translation_.z - viewProjection_.eye.z;
+		boxVecs_[i].normalize();
+	}
 
-	frontVec *= zNum;
-	boxVec *= zNum;
+	
 
-	Vector3 hitCheck;
-	hitCheck.x = frontVec.x - boxVec.x;
-	hitCheck.y = frontVec.y - boxVec.y;
-	hitCheck.z = frontVec.z - boxVec.z;
+	float zNums_[3];
+	for (int i = 0; i < 3; i++) {
+		zNums_[i] = worldTransforms_[i].translation_.z - viewProjection_.eye.z;
+	}
 
-	if (hitCheck.x <= 1.0f && hitCheck.x >= -1.0f &&
-		hitCheck.y <= 1.0f && hitCheck.y >= -1.0f &&
-		hitCheck.z <= 1.0f && hitCheck.z >= -1.0f) {
-		debugText_->SetPos(0, 0);
-		debugText_->Printf("Hit!");
-		textureHandle_ = TextureManager::Load("ray.jpg");
-	} else {
-		textureHandle_ = TextureManager::Load("white1x1.png");
+	for (int i = 0; i < 3; i++) {
+		frontVecs_[i] *= zNums_[i];
+		boxVecs_[i] *= zNums_[i];
+	}
+
+	Vector3 hitChecks_[3];
+
+	for (int i = 0; i < 3; i++) {
+		hitChecks_[i].x = frontVecs_[i].x - boxVecs_[i].x;
+		hitChecks_[i].y = frontVecs_[i].y - boxVecs_[i].y;
+		hitChecks_[i].z = frontVecs_[i].z - boxVecs_[i].z;
+	}
+	for (int i = 0; i < 3; i++) {
+		if (
+			hitChecks_[i].x <= 1.0f && hitChecks_[i].x >= -1.0f &&
+			hitChecks_[i].y <= 1.0f &&hitChecks_[i].y >= -1.0f &&
+			hitChecks_[i].z <= 1.0f && hitChecks_[i].z >= -1.0f) {
+			debugText_->SetPos(0, 20 * i);
+			debugText_->Printf("Hit!");
+			textureHandle_[i] = TextureManager::Load("ray.jpg");
+		} 
+		else {
+			textureHandle_[i] = TextureManager::Load("white1x1.png");
+		}
 	}
 
 	//自キャラ更新
@@ -163,7 +191,9 @@ void GameScene::Draw() {
 	//自キャラの更新
 	// player_->Draw(viewProjection_);
 
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	for (int i = 0; i < 3;i++) {
+		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_[i]);
+	}
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	// for (int i = 0; i < 21; i++) {
