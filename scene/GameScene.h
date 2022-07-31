@@ -76,8 +76,7 @@ private: // メンバ変数
 	static const int MODEL_COUNT = 10;
 	WorldTransform worldTransforms_[MODEL_COUNT];
 	//ビュープロジェクション
-	static const int CAMERA_COUNT = 3;
-	ViewProjection viewProjections_[CAMERA_COUNT];
+	ViewProjection viewProjection_;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
