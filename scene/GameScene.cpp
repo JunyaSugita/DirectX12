@@ -53,6 +53,11 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	//自キャラの初期化
 	player_->Initialize(model_, textureHandle_);
+
+	//敵キャラ生成
+	enemy_ = new Enemy();
+	//敵キャラの初期化
+	enemy_->Initialize(model_);
 }
 
 void GameScene::Update() {
@@ -76,6 +81,11 @@ void GameScene::Update() {
 
 	//自キャラ更新
 	player_->Update();
+
+	//敵更新
+	if (enemy_ != NULL) {
+		enemy_->Update();
+	}
 }
 
 void GameScene::Draw() {
@@ -104,8 +114,14 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+	
 	//自キャラの更新
 	player_->Draw(viewProjection_);
+
+	//敵
+	if (enemy_ != NULL) {
+		enemy_->Draw(viewProjection_);
+	}
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	// for (int i = 0; i < 21; i++) {

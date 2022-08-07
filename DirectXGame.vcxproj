@@ -97,6 +97,7 @@
     <ClCompile Include="base\DirectXCommon.cpp" />
     <ClCompile Include="base\TextureManager.cpp" />
     <ClCompile Include="base\WinApp.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatCalc.cpp" />
     <ClCompile Include="math\Matrix4.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="base\SafeDelete.h" />
     <ClInclude Include="base\TextureManager.h" />
     <ClInclude Include="base\WinApp.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="input\Input.h" />
     <ClInclude Include="MatCalc.h" />
     <ClInclude Include="math\MathUtility.h" />

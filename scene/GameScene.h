@@ -9,6 +9,7 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "Enemy.h"
 const float PI = 3.14159265f;
 
 #include "Player.h"
@@ -53,6 +54,8 @@ class GameScene {
 	DebugText* debugText_ = nullptr;
 	//自キャラ
 	Player* player_ = nullptr;
+	//敵
+	Enemy* enemy_ = nullptr;
 
 	//テクスチャ
 	uint32_t textureHandle_ = 0;
