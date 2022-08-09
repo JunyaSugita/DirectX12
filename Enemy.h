@@ -1,8 +1,9 @@
 #pragma once
+#include "EnemyBullet.h"
+#include "MatCalc.h"
 #include "Model.h"
 #include "ViewProjection.h"
 #include <cassert>
-#include "MatCalc.h"
 
 enum class Phase {
 	Approach, //接近
@@ -24,6 +25,12 @@ class Enemy {
 	void ApproachFunc();
 	void LeaveFunc();
 
+	//弾発射
+	void Fire();
+
+	//接近フェーズ初期化
+	void ApproachInitialize();
+
   private:
 	//ワールド変換
 	WorldTransform worldTransform_;
@@ -35,4 +42,14 @@ class Enemy {
 	Phase phase_ = Phase::Approach;
 
 	static void (Enemy::*phaseFuncTable[])();
+
+	//弾
+	std::list<std::unique_ptr<EnemyBullet>> bullets_;
+
+	//発射タイマー
+	int32_t fireTimer = 0;
+
+  public:
+	//発射間隔
+	static const int kFireInterval = 60;
 };
