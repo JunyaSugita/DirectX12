@@ -20,6 +20,10 @@ class Enemy {
 	//描画
 	void Draw(const ViewProjection& viewProjection);
 
+	//行動パターン関数
+	void ApproachFunc();
+	void LeaveFunc();
+
   private:
 	//ワールド変換
 	WorldTransform worldTransform_;
@@ -29,4 +33,6 @@ class Enemy {
 	uint32_t textureHandle_ = 0u;
 
 	Phase phase_ = Phase::Approach;
+
+	static void (Enemy::*phaseFuncTable[])();
 };
