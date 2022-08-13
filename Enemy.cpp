@@ -11,7 +11,7 @@ void Enemy::Initialize(Model* model) {
 
 	model_ = model;
 	//テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("black1x1.png");
+	textureHandle_ = TextureManager::Load("enemy.png");
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = Vector3(0, 10, 100);
@@ -19,7 +19,9 @@ void Enemy::Initialize(Model* model) {
 	ApproachInitialize();
 }
 
-void Enemy::Update() { 
+void Enemy::Update(Vector3 playerPos) { 
+	playerPosition = playerPos;
+
 	//デスフラグの立った弾を削除
 	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) { return bullet->IsDead(); });
 
@@ -67,16 +69,19 @@ void Enemy::LeaveFunc() {
 }
 
 void Enemy::Fire() {
-	//弾の速度
-	const float kBulletSpeed = 1.0f;
-	Vector3 velocity(0, 0, -kBulletSpeed);
+	assert(player_);
 
-	//自機の向きに合わせる
-	velocity *= worldTransform_.matWorld_;
+	//弾の速度
+	const float kBulletSpeed = 0.1f;
+
+	enemyPosition = GetWorldPosition();
+	Vector3 playerLen = playerPosition - enemyPosition;
+	playerLen.normalize();
+	playerLen *= kBulletSpeed;
 
 	//弾を生成し、初期化
 	std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	newBullet->Initialize(model_, worldTransform_.translation_, playerLen);
 
 	//弾を登録する
 	bullets_.push_back(std::move(newBullet));
@@ -86,3 +91,11 @@ void Enemy::ApproachInitialize() {
 	//発射タイマーを初期化
 	fireTimer = kFireInterval;
 }
+
+Vector3 Enemy::GetWorldPosition() { 
+	Vector3 worldPos;
+	worldPos = worldTransform_.translation_;
+	return worldPos;
+}
+
+void Enemy::OnCollision() {}

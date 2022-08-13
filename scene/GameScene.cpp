@@ -30,7 +30,7 @@ void GameScene::Initialize() {
 	std::uniform_real_distribution<float> rot(0.0f, PI * 2);
 
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandle_ = TextureManager::Load("player.png");
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
@@ -58,6 +58,8 @@ void GameScene::Initialize() {
 	enemy_ = new Enemy();
 	//敵キャラの初期化
 	enemy_->Initialize(model_);
+
+	enemy_->SetPlayer(player_);
 }
 
 void GameScene::Update() {
@@ -84,8 +86,11 @@ void GameScene::Update() {
 
 	//敵更新
 	if (enemy_ != NULL) {
-		enemy_->Update();
+		enemy_->Update(player_->GetWorldPosition());
 	}
+
+	CheckAllCollision();
+
 }
 
 void GameScene::Draw() {
@@ -151,3 +156,72 @@ void GameScene::Draw() {
 }
 
 float GameScene::Radian(float r) { return r * (PI / 180); }
+
+void GameScene::CheckAllCollision() { 
+	Vector3 posA, posB;
+
+	//自弾リストの取得
+	const std::list<std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
+	//敵弾リストの取得
+	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+
+
+	#pragma region 自キャラと敵弾の当たり判定
+	//自キャラの座標
+	posA = player_->GetWorldPosition();
+
+	//自キャラと敵弾全ての当たり判定
+	for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
+		//敵弾の座標
+		posB = bullet->GetWorldPos();
+
+		Vector3 len;
+		len = posB - posA;
+		
+		if (len.length() <= 2) {
+			player_->OnCollision();
+			bullet->OnCollision();
+		}
+	}
+	#pragma endregion
+
+	#pragma region 自弾と敵キャラの当たり判定
+	//敵キャラの座標
+	posA = enemy_->GetWorldPosition();
+
+	//敵キャラと自分の弾全ての当たり判定
+	for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets) {
+		//敵弾の座標
+		posB = bullet->GetWorldPos();
+
+		Vector3 len;
+		len = posB - posA;
+
+		if (len.length() <= 2) {
+			enemy_->OnCollision();
+			bullet->OnCollision();
+		}
+	}
+	#pragma endregion
+
+	#pragma region 自弾と敵弾の当たり判定
+	for (const std::unique_ptr<EnemyBullet>& eneBullet : enemyBullets) {
+		//敵キャラの座標
+		posA = eneBullet->GetWorldPos();
+
+		//敵キャラと自分の弾全ての当たり判定
+		for (const std::unique_ptr<PlayerBullet>& playerBullet : playerBullets) {
+			//敵弾の座標
+			posB = playerBullet->GetWorldPos();
+
+			Vector3 len;
+			len = posB - posA;
+
+			if (len.length() <= 2) {
+				eneBullet->OnCollision();
+				playerBullet->OnCollision();
+			}
+		}
+	}
+	#pragma endregion
+}

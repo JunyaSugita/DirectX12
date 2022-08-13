@@ -25,6 +25,12 @@ class Player {
 	//UŒ‚
 	void Attack();
 
+	Vector3 GetWorldPosition();
+	
+	//“–‚½‚è”»’è
+	void OnCollision();
+	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }
+
   private:
 	//ƒ[ƒ‹ƒh•ÏŠ·
 	WorldTransform worldTransform_;

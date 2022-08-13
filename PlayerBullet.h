@@ -17,6 +17,10 @@ class PlayerBullet {
 
 	//ゲッター
 	bool IsDead() const { return isDead_; }
+	Vector3 GetWorldPos();
+
+	//当たり判定
+	void OnCollision();
 
   private:
 	//ワールド変換

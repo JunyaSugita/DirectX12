@@ -6,7 +6,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 
 	model_ = model;
 	//テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("black1x1.png");
+	textureHandle_ = TextureManager::Load("enemyBullet.png");
 
 	worldTransform_.Initialize();
 	//引数で受け取った変数をセット
@@ -28,4 +28,14 @@ void EnemyBullet::Update() {
 
 void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+}
+
+Vector3 EnemyBullet::GetWorldPos() { 
+	Vector3 worldPos;
+	worldPos = worldTransform_.translation_;
+	return worldPos;
+}
+
+void EnemyBullet::OnCollision() { 
+	isDead_ = true; 
 }

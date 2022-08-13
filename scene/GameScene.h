@@ -3,13 +3,13 @@
 #include "DebugCamera.h"
 #include "DebugText.h"
 #include "DirectXCommon.h"
+#include "Enemy.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include "Enemy.h"
 const float PI = 3.14159265f;
 
 #include "Player.h"
@@ -47,6 +47,11 @@ class GameScene {
 
 	float Radian(float r);
 
+	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	void CheckAllCollision();
+
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -75,7 +80,6 @@ class GameScene {
 	//カメラの種類
 	int cameraNum = 0;
 
-	
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

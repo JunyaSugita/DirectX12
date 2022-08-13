@@ -116,3 +116,13 @@ void Player::Attack() {
 		bullets_.push_back(std::move(newBullet));
 	}
 }
+
+Vector3 Player::GetWorldPosition() { 
+	Vector3 worldPos;
+	worldPos = worldTransform_.translation_;
+	return worldPos; 
+}
+
+void Player::OnCollision() {
+	
+}

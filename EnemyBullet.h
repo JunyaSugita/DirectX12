@@ -17,6 +17,10 @@ class EnemyBullet {
 
 	//ゲッター
 	bool IsDead() const { return isDead_; }
+	Vector3 GetWorldPos();
+
+	//当たり判定
+	void OnCollision();
 
   private:
 	//ワールド変換
@@ -30,7 +34,7 @@ class EnemyBullet {
 	Vector3 velocity_;
 
 	//寿命
-	static const int32_t kLifeTime = 60 * 5;
+	static const int32_t kLifeTime = 60 * 20;
 
 	//デスタイマー
 	int32_t deathTimer_ = kLifeTime;
