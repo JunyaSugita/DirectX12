@@ -12,6 +12,9 @@ GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
 	delete player_;
+	delete modelSkydome_;
+	delete enemy_;
+	delete skydome_;
 }
 
 void GameScene::Initialize() {
@@ -33,7 +36,7 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("player.png");
 	// 3Dモデルの生成
 	model_ = Model::Create();
-
+	modelSkydome_ = Model::CreateFromOBJ("sky", true);
 	//ビュープロジェクションの初期化
 
 	viewProjection_.Initialize();
@@ -58,8 +61,11 @@ void GameScene::Initialize() {
 	enemy_ = new Enemy();
 	//敵キャラの初期化
 	enemy_->Initialize(model_);
-
 	enemy_->SetPlayer(player_);
+
+	//天球
+	skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_);
 }
 
 void GameScene::Update() {
@@ -91,6 +97,7 @@ void GameScene::Update() {
 
 	CheckAllCollision();
 
+	skydome_->Update();
 }
 
 void GameScene::Draw() {
@@ -127,6 +134,9 @@ void GameScene::Draw() {
 	if (enemy_ != NULL) {
 		enemy_->Draw(viewProjection_);
 	}
+
+	//天球
+	skydome_->Draw(viewProjection_);
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	// for (int i = 0; i < 21; i++) {

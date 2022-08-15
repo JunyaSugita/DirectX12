@@ -3,7 +3,6 @@
 #include "DebugCamera.h"
 #include "DebugText.h"
 #include "DirectXCommon.h"
-#include "Enemy.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
@@ -13,6 +12,8 @@
 const float PI = 3.14159265f;
 
 #include "Player.h"
+#include "Enemy.h"
+#include "Skydome.h"
 
 /// <summary>
 /// ゲームシーン
@@ -62,11 +63,15 @@ class GameScene {
 	//敵
 	Enemy* enemy_ = nullptr;
 
+	//天球
+	Skydome* skydome_ = nullptr;
+
 	//テクスチャ
 	uint32_t textureHandle_ = 0;
 
 	// 3Dモデル
 	Model* model_ = nullptr;
+	Model* modelSkydome_ = nullptr;
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
