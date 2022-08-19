@@ -75,6 +75,9 @@ class GameScene {
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
+	float cameraAngleX = 270.0f;
+	float cameraAngleY = 0.0f;
+
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;

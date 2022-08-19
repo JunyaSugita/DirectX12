@@ -22,6 +22,8 @@ class EnemyBullet {
 	//“–‚½‚è”»’è
 	void OnCollision();
 
+
+
   private:
 	//ƒ[ƒ‹ƒh•ÏŠ·
 	WorldTransform worldTransform_;

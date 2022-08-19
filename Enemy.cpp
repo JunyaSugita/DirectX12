@@ -14,7 +14,8 @@ void Enemy::Initialize(Model* model) {
 	textureHandle_ = TextureManager::Load("enemy.png");
 
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = Vector3(0, 10, 100);
+	worldTransform_.translation_ = {0.0f, 0.0f, 0.0f};
+	worldTransform_.scale_ = {5.0f, 5.0f, 10.0f};
 
 	ApproachInitialize();
 }
@@ -45,7 +46,7 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 
 void Enemy::ApproachFunc() {
 	//移動
-	worldTransform_.translation_.z -= 0.1f;
+	//worldTransform_.translation_.z -= 0.1f;
 
 	//タイマーカウントダウン
 	fireTimer--;
@@ -62,7 +63,7 @@ void Enemy::ApproachFunc() {
 
 void Enemy::LeaveFunc() {
 	//移動
-	worldTransform_.translation_.z += 0.5f;
+	//worldTransform_.translation_.z += 0.5f;
 	if (worldTransform_.translation_.z > 100.0f) {
 		phase_ = Phase::Approach;
 	}

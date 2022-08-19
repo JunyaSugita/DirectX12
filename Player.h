@@ -10,6 +10,7 @@
 #include "PlayerBullet.h"
 #include <memory>
 #include <list>
+#include "PrimitiveDrawer.h"
 
 class Player {
   public:
@@ -26,6 +27,9 @@ class Player {
 	void Attack();
 
 	Vector3 GetWorldPosition();
+	Vector3 GetfrontVec();
+
+	float Radian(float r);
 	
 	//“–‚½‚è”»’è
 	void OnCollision();
@@ -41,6 +45,13 @@ class Player {
 
 	Input* input_;
 	DebugText* debugText_;
+
+	/// <summary>
+	/// ƒLƒƒƒ‰‚ÌŒü‚«(“x”)
+	/// </summary>
+	float angle_ = 0.0f;
+
+	Vector3 frontVec_;
 
 	//’e
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;

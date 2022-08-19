@@ -11,82 +11,62 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	worldTransform_.translation_ = {0.0f, 0.0f, 0.0f};
+	worldTransform_.translation_ = {0.0f, 0.0f, -50.0f};
+	worldTransform_.scale_ = {0.4f, 0.8f, 0.4f};
+	frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 }
 
 void Player::Update() {
 
 	//ƒfƒXƒtƒ‰ƒO‚Ì—§‚Á‚½’e‚ğíœ
-	bullets_.remove_if([](std::unique_ptr<PlayerBullet> & bullet) { 
-		return bullet->IsDead(); 
-	});
-
-	//ˆÚ“®
-	Vector3 move = {0, 0, 0};
+	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) { return bullet->IsDead(); });
 
 	//ˆÚ“®‘¬“x
 	const float kCharacterSpeed = 0.2f;
 
-	if (input_->PushKey(DIK_A)) {
-		move += {-kCharacterSpeed, 0, 0};
+	if (worldTransform_.translation_.z < -21.3f) {
+		angle_ += 0.02f;
 	}
-	if (input_->PushKey(DIK_D)) {
-		move += {kCharacterSpeed, 0, 0};
+	if (worldTransform_.translation_.z > 20.0f) {
+		angle_ += 0.02f;
 	}
-	if (input_->PushKey(DIK_W)) {
-		move += {0, kCharacterSpeed, 0};
+	if (angle_ >= 360.0f) {
+		angle_ -= 360.0f;
 	}
-	if (input_->PushKey(DIK_S)) {
-		move += {0, -kCharacterSpeed, 0};
-	}
-	worldTransform_.translation_ += move;
+	frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
+
+	worldTransform_.translation_ += frontVec_ * 0.01f;
 
 	//ˆÚ“®ŒÀŠE
-	const float kMoveLimitX = 34.0f;
-	const float kMoveLimitY = 18.0f;
+	//const float kMoveLimitX = 34.0f;
+	//const float kMoveLimitY = 18.0f;
 
 	//”ÍˆÍ‚ğ’´‚¦‚È‚¢ˆ—
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX); 
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX); 
-	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY); 
+	// worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
+	// worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
+	// worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
+	// worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
 	//ù‰ñ
 	Vector3 rotate = {0, 0, 0};
 
 	//ˆÚ“®‘¬“x
-	const float krotateSpeed = 0.02f;
 
-	if (input_->PushKey(DIK_LEFT)) {
-		rotate += {0, -krotateSpeed, 0};
-	}
-	if (input_->PushKey(DIK_RIGHT)) {
-		rotate += {0, krotateSpeed, 0};
-	}
-	if (input_->PushKey(DIK_UP)) {
-		rotate += {-krotateSpeed, 0, 0};
-	}
-	if (input_->PushKey(DIK_DOWN)) {
-		rotate += {krotateSpeed, 0, 0};
-	}
-	worldTransform_.rotation_ += rotate;
+	rotate = {0, -Radian(angle_), 0};
+	worldTransform_.rotation_ = rotate;
 
 	MatCalc(worldTransform_);
 
 	debugText_->SetPos(0, 0);
 	debugText_->Printf(
-		"%f,%f,%f",
-		worldTransform_.translation_.x,
-		worldTransform_.translation_.y,
-		worldTransform_.translation_.z
-	);
+	  "%f", angle_);
 
 	//ƒLƒƒƒ‰ƒNƒ^[‚ÌUŒ‚
 	Attack();
 
 	//’eXV
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
-		bullet->Update();	
+		bullet->Update();
 	}
 }
 
@@ -95,7 +75,7 @@ void Player::Draw(ViewProjection& viewProjection) {
 
 	//’e•`‰æ
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
-		bullet->Draw(viewProjection); 	
+		bullet->Draw(viewProjection);
 	}
 }
 
@@ -110,19 +90,25 @@ void Player::Attack() {
 
 		//’e‚ğ¶¬‚µA‰Šú‰»
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
 		//’e‚ğ“o˜^‚·‚é
 		bullets_.push_back(std::move(newBullet));
 	}
 }
 
-Vector3 Player::GetWorldPosition() { 
+Vector3 Player::GetWorldPosition() {
 	Vector3 worldPos;
 	worldPos = worldTransform_.translation_;
-	return worldPos; 
+	return worldPos;
 }
 
-void Player::OnCollision() {
-	
+Vector3 Player::GetfrontVec() {
+	Vector3 frontVec;
+	frontVec = frontVec_;
+	return frontVec;
 }
+
+float Player::Radian(float r) { return r * (3.14159265f / 180); }
+
+void Player::OnCollision() {}

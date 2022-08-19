@@ -40,6 +40,8 @@ void GameScene::Initialize() {
 	//ビュープロジェクションの初期化
 
 	viewProjection_.Initialize();
+	viewProjection_.eye = {0.0f, 10.0f, -100.0f};
+	viewProjection_.UpdateMatrix();
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -87,6 +89,43 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	}
 
+	if (input_->PushKey(DIK_RIGHT)) {
+		cameraAngleX -= 0.5f;
+		if (cameraAngleX < 0.0f) {
+			cameraAngleX += 360.0f;
+		}
+	}
+	if (input_->PushKey(DIK_LEFT)) {
+		cameraAngleX += 0.5f;
+		if (cameraAngleX > 360.0f) {
+			cameraAngleX -= 360.0f;
+		}
+	}
+	if (input_->PushKey(DIK_UP)) {
+		cameraAngleY -= 0.5f;
+		if (cameraAngleY < -89.5f) {
+			cameraAngleY = -89.5f;
+		}
+	}
+	if (input_->PushKey(DIK_DOWN)) {
+		cameraAngleY += 0.5f;
+		if (cameraAngleY > 89.5f) {
+			cameraAngleY = 89.5f;
+		}
+	}
+
+	int cameraLen = 10;
+	viewProjection_.target = player_->GetWorldPosition();
+	viewProjection_.target.y += 3.0f;
+
+	viewProjection_.eye = viewProjection_.target;
+	viewProjection_.eye +=
+	{	cos(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY)),
+		sin(Radian(cameraAngleY)) * cameraLen,
+		sin(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY))
+	};
+	viewProjection_.UpdateMatrix();
+
 	//自キャラ更新
 	player_->Update();
 
@@ -126,7 +165,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	
+
 	//自キャラの更新
 	player_->Draw(viewProjection_);
 
@@ -140,10 +179,12 @@ void GameScene::Draw() {
 
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	// for (int i = 0; i < 21; i++) {
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i
-	//* 10 - 100), Vector4(255, 0, 0, 255)); 	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(i
-	//* 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(
+	//	  Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(
+	//	  Vector3(i * 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
 	//}
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -167,7 +208,7 @@ void GameScene::Draw() {
 
 float GameScene::Radian(float r) { return r * (PI / 180); }
 
-void GameScene::CheckAllCollision() { 
+void GameScene::CheckAllCollision() {
 	Vector3 posA, posB;
 
 	//自弾リストの取得
@@ -175,8 +216,7 @@ void GameScene::CheckAllCollision() {
 	//敵弾リストの取得
 	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
 
-
-	#pragma region 自キャラと敵弾の当たり判定
+#pragma region 自キャラと敵弾の当たり判定
 	//自キャラの座標
 	posA = player_->GetWorldPosition();
 
@@ -187,15 +227,15 @@ void GameScene::CheckAllCollision() {
 
 		Vector3 len;
 		len = posB - posA;
-		
+
 		if (len.length() <= 2) {
 			player_->OnCollision();
 			bullet->OnCollision();
 		}
 	}
-	#pragma endregion
+#pragma endregion
 
-	#pragma region 自弾と敵キャラの当たり判定
+#pragma region 自弾と敵キャラの当たり判定
 	//敵キャラの座標
 	posA = enemy_->GetWorldPosition();
 
@@ -212,9 +252,9 @@ void GameScene::CheckAllCollision() {
 			bullet->OnCollision();
 		}
 	}
-	#pragma endregion
+#pragma endregion
 
-	#pragma region 自弾と敵弾の当たり判定
+#pragma region 自弾と敵弾の当たり判定
 	for (const std::unique_ptr<EnemyBullet>& eneBullet : enemyBullets) {
 		//敵キャラの座標
 		posA = eneBullet->GetWorldPos();
@@ -233,5 +273,5 @@ void GameScene::CheckAllCollision() {
 			}
 		}
 	}
-	#pragma endregion
+#pragma endregion
 }
