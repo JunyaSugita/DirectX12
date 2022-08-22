@@ -15,6 +15,7 @@ GameScene::~GameScene() {
 	delete modelSkydome_;
 	delete enemy_;
 	delete skydome_;
+	delete sprite_;
 }
 
 void GameScene::Initialize() {
@@ -34,13 +35,16 @@ void GameScene::Initialize() {
 
 	//ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("player.png");
+	scopeHandle_ = TextureManager::Load("red10x10.png");
+	waterHandle_ = TextureManager::Load("water.png");
+	lifeHandle_ = TextureManager::Load("Life.png");
 	// 3Dモデルの生成
 	model_ = Model::Create();
 	modelSkydome_ = Model::CreateFromOBJ("sky", true);
 	//ビュープロジェクションの初期化
-
 	viewProjection_.Initialize();
 	viewProjection_.eye = {0.0f, 10.0f, -100.0f};
+	viewProjection_.farZ = 12000.0f;
 	viewProjection_.UpdateMatrix();
 
 	//デバッグカメラの生成
@@ -62,16 +66,32 @@ void GameScene::Initialize() {
 	//敵キャラ生成
 	enemy_ = new Enemy();
 	//敵キャラの初期化
-	enemy_->Initialize(model_);
+	enemy_->Initialize(model_, player_->GetWorldTransform());
 	enemy_->SetPlayer(player_);
 
 	//天球
 	skydome_ = new Skydome();
 	skydome_->Initialize(modelSkydome_);
+
+	//水
+	water_.Initialize();
+	water_.translation_ = {0.0f, -3.0f, 0.0f};
+	water_.scale_ = {1000.0f, 1.0f, 1000.0f};
+	MatCalc(water_);
+
+	//カメラ関係
+	cameraFrontVec = viewProjection_.target - viewProjection_.eye;
+
+	//スプライト
+	sprite_ = Sprite::Create(scopeHandle_, {635, 355});
+	lifeSprite_[0] = Sprite::Create(lifeHandle_, {0, 0});
+	lifeSprite_[1] = Sprite::Create(lifeHandle_, {100, 0});
+	lifeSprite_[2] = Sprite::Create(lifeHandle_, {200, 0});
 }
 
 void GameScene::Update() {
 #ifdef _DEBUG
+	isDebugCameraActive_ = false;
 	if (input_->TriggerKey(DIK_P)) {
 		if (isDebugCameraActive_ == false) {
 			isDebugCameraActive_ = true;
@@ -89,54 +109,108 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	}
 
-	if (input_->PushKey(DIK_RIGHT)) {
-		cameraAngleX -= 0.5f;
-		if (cameraAngleX < 0.0f) {
-			cameraAngleX += 360.0f;
-		}
-	}
-	if (input_->PushKey(DIK_LEFT)) {
-		cameraAngleX += 0.5f;
-		if (cameraAngleX > 360.0f) {
-			cameraAngleX -= 360.0f;
-		}
-	}
-	if (input_->PushKey(DIK_UP)) {
-		cameraAngleY -= 0.5f;
-		if (cameraAngleY < -89.5f) {
-			cameraAngleY = -89.5f;
-		}
-	}
-	if (input_->PushKey(DIK_DOWN)) {
-		cameraAngleY += 0.5f;
-		if (cameraAngleY > 89.5f) {
-			cameraAngleY = 89.5f;
-		}
-	}
-
 	int cameraLen = 10;
 	viewProjection_.target = player_->GetWorldPosition();
 	viewProjection_.target.y += 3.0f;
 
 	viewProjection_.eye = viewProjection_.target;
 	viewProjection_.eye +=
-	{	cos(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY)),
-		sin(Radian(cameraAngleY)) * cameraLen,
-		sin(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY))
-	};
+	  {cos(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY)),
+	   sin(Radian(cameraAngleY)) * cameraLen,
+	   sin(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY))};
 	viewProjection_.UpdateMatrix();
 
 	//自キャラ更新
 	player_->Update();
+	enemy_->SetWorldTransform(player_->GetWorldTransform());
 
 	//敵更新
 	if (enemy_ != NULL) {
-		enemy_->Update(player_->GetWorldPosition());
+		enemy_->Update();
 	}
 
 	CheckAllCollision();
 
 	skydome_->Update();
+
+	enemy_->SetPlayerAngle(player_->GetPlayerAngle());
+
+	/// <summary>
+	/// レイの判定
+	/// </summary>
+	cameraFrontVec = viewProjection_.target - viewProjection_.eye;
+	cameraFrontVec.normalize();
+
+	//敵弾リストの取得
+	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+	int Count = 0;
+	bool isMove = false;
+	cameraSpeed = 0.3f;
+	for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
+		Count++;
+		if (bullet->GetisMove() == true) {
+			isMove = true;
+		}
+
+		if (bullet->GetisMove() == false && isMove == false) {
+			bullet->Move();
+			isMove = true;
+		}
+
+		bullet->SetBulletVec(bullet->GetWorldPos() - viewProjection_.eye);
+		bullet->BulletVecNormalize();
+		Vector3 bulletPos = bullet->GetWorldPos();
+		float len;
+		len = sqrt(
+		  (bulletPos.x - viewProjection_.eye.x) * (bulletPos.x - viewProjection_.eye.x) +
+		  (bulletPos.z - viewProjection_.eye.z) * (bulletPos.z - viewProjection_.eye.z));
+		cameraFrontVec *= len;
+		bullet->SetBulletVec(bullet->GetBulletVec() * len);
+		Vector3 hitCheck_;
+		hitCheck_ = cameraFrontVec - bullet->GetBulletVec();
+		if (
+		  hitCheck_.x <= 1.0f && hitCheck_.x >= -1.0f && hitCheck_.y <= 1.0f &&
+		  hitCheck_.y >= -1.0f && hitCheck_.z <= 1.0f && hitCheck_.z >= -1.0f) {
+			debugText_->SetPos(0, 20);
+			debugText_->Printf("Hit!");
+			cameraSpeed = 0.1f;
+			if (input_->TriggerKey(DIK_SPACE)) {
+				bullet->SetisHit(true);
+			}
+		}
+	}
+
+	if (input_->PushKey(DIK_RIGHT)) {
+		cameraAngleX -= cameraSpeed;
+		if (cameraAngleX < 0.0f) {
+			cameraAngleX += 360.0f;
+		}
+	}
+	if (input_->PushKey(DIK_LEFT)) {
+		cameraAngleX += cameraSpeed;
+		if (cameraAngleX > 360.0f) {
+			cameraAngleX -= 360.0f;
+		}
+	}
+	if (input_->PushKey(DIK_UP)) {
+		cameraAngleY -= cameraSpeed;
+		if (cameraAngleY < -89.5f) {
+			cameraAngleY = -89.5f;
+		}
+	}
+	if (input_->PushKey(DIK_DOWN)) {
+		cameraAngleY += cameraSpeed;
+		if (cameraAngleY > 89.5f) {
+			cameraAngleY = 89.5f;
+		}
+	}
+
+	if (input_->TriggerKey(DIK_1)) {
+		enemy_->SetInput(false);
+	}
+
+	debugText_->SetPos(0, 40);
+	debugText_->Printf("%d", Count);
 }
 
 void GameScene::Draw() {
@@ -177,13 +251,16 @@ void GameScene::Draw() {
 	//天球
 	skydome_->Draw(viewProjection_);
 
+	//水
+	model_->Draw(water_, viewProjection_, waterHandle_);
+
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
-	// for (int i = 0; i < 21; i++) {
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(
-	//	  Vector3(100, 0, i * 10 - 100), Vector3(-100, 0, i * 10 - 100), Vector4(255, 0, 0, 255));
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(
-	//	  Vector3(i * 10 - 100, 0, 100), Vector3(i * 10 - 100, 0, -100), Vector4(0, 0, 255, 255));
-	//}
+	/*for (int i = 0; i < 21; i++) {
+	    PrimitiveDrawer::GetInstance()->DrawLine3d(
+	      Vector3(100, -2, i * 10 - 100), Vector3(-100, -2, i * 10 - 100), Vector4(255, 0, 0, 255));
+	    PrimitiveDrawer::GetInstance()->DrawLine3d(
+	      Vector3(i * 10 - 100, -2, 100), Vector3(i * 10 - 100, -2, -100), Vector4(0, 0, 255, 255));
+	}*/
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -196,11 +273,21 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-
+	sprite_->Draw();
+	if (player_->GetLife() >= 1) {
+		lifeSprite_[0]->Draw();
+	}
+	if (player_->GetLife() >= 2) {
+		lifeSprite_[1]->Draw();
+	}
+	if (player_->GetLife() >= 3) {
+		lifeSprite_[2]->Draw();
+	}
 	// デバッグテキストの描画
-	debugText_->DrawAll(commandList);
+
+	// debugText_->DrawAll(commandList);
 	//
-	// スプライト描画後処理
+	//  スプライト描画後処理
 	Sprite::PostDraw();
 
 #pragma endregion

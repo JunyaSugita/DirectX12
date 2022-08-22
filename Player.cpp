@@ -11,7 +11,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	worldTransform_.translation_ = {0.0f, 0.0f, -50.0f};
+	worldTransform_.translation_ = {0.0f, 0.0f, -300.0f};
 	worldTransform_.scale_ = {0.4f, 0.8f, 0.4f};
 	frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 }
@@ -22,20 +22,20 @@ void Player::Update() {
 	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) { return bullet->IsDead(); });
 
 	//ˆÚ“®‘¬“x
-	const float kCharacterSpeed = 0.2f;
+	const float kCharacterSpeed = 0.1f;
 
-	if (worldTransform_.translation_.z < -21.3f) {
-		angle_ += 0.02f;
+	if (angle_ < 90 || worldTransform_.translation_.z < -270.0f) {
+		angle_ += 0.03f;
 	}
-	if (worldTransform_.translation_.z > 20.0f) {
-		angle_ += 0.02f;
+	if (worldTransform_.translation_.z > 270.0f) {
+		angle_ += 0.03f;
 	}
 	if (angle_ >= 360.0f) {
 		angle_ -= 360.0f;
 	}
 	frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 
-	worldTransform_.translation_ += frontVec_ * 0.01f;
+	worldTransform_.translation_ += frontVec_ * kCharacterSpeed;
 
 	//ˆÚ“®ŒÀŠE
 	//const float kMoveLimitX = 34.0f;
@@ -80,21 +80,21 @@ void Player::Draw(ViewProjection& viewProjection) {
 }
 
 void Player::Attack() {
-	if (input_->TriggerKey(DIK_SPACE)) {
-		//’e‚Ì‘¬“x
-		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
+	//if (input_->TriggerKey(DIK_SPACE)) {
+	//	//’e‚Ì‘¬“x
+	//	const float kBulletSpeed = 1.0f;
+	//	Vector3 velocity(0, 0, kBulletSpeed);
 
-		//©‹@‚ÌŒü‚«‚É‡‚í‚¹‚é
-		velocity *= worldTransform_.matWorld_;
+	//	//©‹@‚ÌŒü‚«‚É‡‚í‚¹‚é
+	//	velocity *= worldTransform_.matWorld_;
 
-		//’e‚ğ¶¬‚µA‰Šú‰»
-		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	//	//’e‚ğ¶¬‚µA‰Šú‰»
+	//	std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+	//	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
-		//’e‚ğ“o˜^‚·‚é
-		bullets_.push_back(std::move(newBullet));
-	}
+	//	//’e‚ğ“o˜^‚·‚é
+	//	bullets_.push_back(std::move(newBullet));
+	//}
 }
 
 Vector3 Player::GetWorldPosition() {
@@ -109,6 +109,12 @@ Vector3 Player::GetfrontVec() {
 	return frontVec;
 }
 
+uint32_t Player::GetLife() { return life; }
+
+WorldTransform Player::GetWorldTransform() { return worldTransform_; }
+
+float Player::GetPlayerAngle() { return angle_; }
+
 float Player::Radian(float r) { return r * (3.14159265f / 180); }
 
-void Player::OnCollision() {}
+void Player::OnCollision() { life--; }

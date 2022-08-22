@@ -60,6 +60,7 @@ class GameScene {
 	DebugText* debugText_ = nullptr;
 	//自キャラ
 	Player* player_ = nullptr;
+
 	//敵
 	Enemy* enemy_ = nullptr;
 
@@ -68,6 +69,7 @@ class GameScene {
 
 	//テクスチャ
 	uint32_t textureHandle_ = 0;
+	uint32_t waterHandle_ = 0;
 
 	// 3Dモデル
 	Model* model_ = nullptr;
@@ -77,6 +79,7 @@ class GameScene {
 
 	float cameraAngleX = 270.0f;
 	float cameraAngleY = 0.0f;
+	float cameraSpeed = 0.1f;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
@@ -85,8 +88,17 @@ class GameScene {
 	//角度
 	float angle = 0;
 
-	//カメラの種類
-	int cameraNum = 0;
+	//カメラベクトル
+	Vector3 cameraFrontVec;
+
+	//スプライト
+	Sprite* sprite_ = nullptr;
+	uint32_t scopeHandle_ = 0;
+	Sprite* lifeSprite_[3];
+	uint32_t lifeHandle_ = 0;
+
+	//水
+	WorldTransform water_;
 
 	/// <summary>
 	/// ゲームシーン用

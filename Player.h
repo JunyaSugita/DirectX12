@@ -28,6 +28,9 @@ class Player {
 
 	Vector3 GetWorldPosition();
 	Vector3 GetfrontVec();
+	WorldTransform GetWorldTransform();
+	float GetPlayerAngle();
+	uint32_t GetLife();
 
 	float Radian(float r);
 	
@@ -52,6 +55,8 @@ class Player {
 	float angle_ = 0.0f;
 
 	Vector3 frontVec_;
+
+	uint32_t life = 3;
 
 	//’e
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;

@@ -14,10 +14,10 @@ enum class Phase {
 class Enemy {
   public:
 	//初期化
-	void Initialize(Model* model);
+	void Initialize(Model* model,WorldTransform playerTransform);
 
 	//更新
-	void Update(Vector3 playerPos);
+	void Update();
 
 	//描画
 	void Draw(const ViewProjection& viewProjection);
@@ -27,21 +27,31 @@ class Enemy {
 	void LeaveFunc();
 
 	//弾発射
-	void Fire();
+	void Fire(Vector3 transform);
 
 	//接近フェーズ初期化
 	void ApproachInitialize();
 
 	void SetPlayer(Player* player) { player_ = player; }
 
+	//ゲッター
 	Vector3 GetWorldPosition();
+	//セッター
+	void SetWorldTransform(WorldTransform playerTransform);
+	void SetPlayerAngle(float angle);
+	void SetInput(bool is);
 
 	//当たり判定
 	void OnCollision();
 	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
+
+	float Radian(float r);
+
   private:
 	//ワールド変換
 	WorldTransform worldTransform_;
+	WorldTransform playerTransform_;
+	WorldTransform bulletCenter_;
 	//モデルのポインタ
 	Model* model_ = nullptr;
 	//テクスチャハンドル
@@ -62,6 +72,9 @@ class Enemy {
 
 	Vector3 playerPosition;
 	Vector3 enemyPosition;
+	float playerAngle_ = 0;
+
+	bool a = true;
 
   public:
 	//発射間隔
