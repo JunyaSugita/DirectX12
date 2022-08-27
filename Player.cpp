@@ -1,10 +1,8 @@
 #include "Player.h"
 
-void Player::Initialize(Model* model, uint32_t textureHandle) {
-	// NULLポインタチェック
-	assert(model);
+void Player::Initialize(uint32_t textureHandle) {
 
-	model_ = model;
+	model_ = Model::CreateFromOBJ("player", true);
 	textureHandle_ = textureHandle;
 
 	//シングルトンインスタンスを取得
@@ -12,7 +10,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	debugText_ = DebugText::GetInstance();
 
 	worldTransform_.translation_ = {0.0f, 0.0f, -300.0f};
-	worldTransform_.scale_ = {0.4f, 0.8f, 0.4f};
+	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
 	frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 }
 
@@ -23,12 +21,22 @@ void Player::Update() {
 
 	//移動速度
 	const float kCharacterSpeed = 0.1f;
-
+	if (worldTransform_.rotation_.x > 0) {
+		worldTransform_.rotation_.x -= 0.004f;
+	}
 	if (angle_ < 90 || worldTransform_.translation_.z < -270.0f) {
 		angle_ += 0.03f;
+		if (worldTransform_.rotation_.x < 0.5f) {
+			worldTransform_.rotation_.x += 0.005f;
+		}
+		
+		MatCalc(worldTransform_);
 	}
 	if (worldTransform_.translation_.z > 270.0f) {
 		angle_ += 0.03f;
+		if (worldTransform_.rotation_.x < 0.5f) {
+			worldTransform_.rotation_.x += 0.005f;
+		}
 	}
 	if (angle_ >= 360.0f) {
 		angle_ -= 360.0f;
@@ -48,12 +56,12 @@ void Player::Update() {
 	// worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
 	//旋回
-	Vector3 rotate = {0, 0, 0};
+	float rotate = 0;
 
 	//移動速度
 
-	rotate = {0, -Radian(angle_), 0};
-	worldTransform_.rotation_ = rotate;
+	rotate = -Radian(angle_);
+	worldTransform_.rotation_.y = rotate;
 
 	MatCalc(worldTransform_);
 
@@ -71,7 +79,7 @@ void Player::Update() {
 }
 
 void Player::Draw(ViewProjection& viewProjection) {
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection);
 
 	//弾描画
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {

@@ -16,6 +16,7 @@ GameScene::~GameScene() {
 	delete enemy_;
 	delete skydome_;
 	delete sprite_;
+	delete modelEnemyBullet_;
 }
 
 void GameScene::Initialize() {
@@ -41,6 +42,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 	modelSkydome_ = Model::CreateFromOBJ("sky", true);
+	modelEnemyBullet_ = Model::CreateFromOBJ("enemyBullet", true);
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 	viewProjection_.eye = {0.0f, 10.0f, -100.0f};
@@ -61,7 +63,7 @@ void GameScene::Initialize() {
 	//自キャラ生成
 	player_ = new Player();
 	//自キャラの初期化
-	player_->Initialize(model_, textureHandle_);
+	player_->Initialize(textureHandle_);
 
 	//敵キャラ生成
 	enemy_ = new Enemy();
@@ -75,7 +77,7 @@ void GameScene::Initialize() {
 
 	//水
 	water_.Initialize();
-	water_.translation_ = {0.0f, -3.0f, 0.0f};
+	water_.translation_ = {0.0f, -1.0f, 0.0f};
 	water_.scale_ = {1000.0f, 1.0f, 1000.0f};
 	MatCalc(water_);
 
@@ -101,116 +103,128 @@ void GameScene::Update() {
 	}
 #endif
 
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		viewProjection_ = debugCamera_->GetViewProjection();
-		viewProjection_.TransferMatrix();
-	} else {
-		viewProjection_.TransferMatrix();
+	if (scene == title) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			scene = main;
+		}
 	}
+	if (scene == main && player_->GetLife() != 0) {
 
-	int cameraLen = 10;
-	viewProjection_.target = player_->GetWorldPosition();
-	viewProjection_.target.y += 3.0f;
-
-	viewProjection_.eye = viewProjection_.target;
-	viewProjection_.eye +=
-	  {cos(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY)),
-	   sin(Radian(cameraAngleY)) * cameraLen,
-	   sin(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY))};
-	viewProjection_.UpdateMatrix();
-
-	//自キャラ更新
-	player_->Update();
-	enemy_->SetWorldTransform(player_->GetWorldTransform());
-
-	//敵更新
-	if (enemy_ != NULL) {
-		enemy_->Update();
-	}
-
-	CheckAllCollision();
-
-	skydome_->Update();
-
-	enemy_->SetPlayerAngle(player_->GetPlayerAngle());
-
-	/// <summary>
-	/// レイの判定
-	/// </summary>
-	cameraFrontVec = viewProjection_.target - viewProjection_.eye;
-	cameraFrontVec.normalize();
-
-	//敵弾リストの取得
-	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
-	int Count = 0;
-	bool isMove = false;
-	cameraSpeed = 0.3f;
-	for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
-		Count++;
-		if (bullet->GetisMove() == true) {
-			isMove = true;
+		if (isDebugCameraActive_) {
+			debugCamera_->Update();
+			viewProjection_ = debugCamera_->GetViewProjection();
+			viewProjection_.TransferMatrix();
+		} else {
+			viewProjection_.TransferMatrix();
 		}
 
-		if (bullet->GetisMove() == false && isMove == false) {
-			bullet->Move();
-			isMove = true;
+		int cameraLen = 10;
+		viewProjection_.target = player_->GetWorldPosition();
+		viewProjection_.target.y += 3.0f;
+
+		viewProjection_.eye = viewProjection_.target;
+		viewProjection_.eye +=
+		  {cos(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY)),
+		   sin(Radian(cameraAngleY)) * cameraLen,
+		   sin(Radian(cameraAngleX)) * cameraLen * cos(Radian(cameraAngleY))};
+		viewProjection_.UpdateMatrix();
+
+		//自キャラ更新
+		player_->Update();
+		enemy_->SetWorldTransform(player_->GetWorldTransform());
+
+		//敵更新
+		if (enemy_ != NULL) {
+			enemy_->Update();
 		}
 
-		bullet->SetBulletVec(bullet->GetWorldPos() - viewProjection_.eye);
-		bullet->BulletVecNormalize();
-		Vector3 bulletPos = bullet->GetWorldPos();
-		float len;
-		len = sqrt(
-		  (bulletPos.x - viewProjection_.eye.x) * (bulletPos.x - viewProjection_.eye.x) +
-		  (bulletPos.z - viewProjection_.eye.z) * (bulletPos.z - viewProjection_.eye.z));
-		cameraFrontVec *= len;
-		bullet->SetBulletVec(bullet->GetBulletVec() * len);
-		Vector3 hitCheck_;
-		hitCheck_ = cameraFrontVec - bullet->GetBulletVec();
-		if (
-		  hitCheck_.x <= 1.0f && hitCheck_.x >= -1.0f && hitCheck_.y <= 1.0f &&
-		  hitCheck_.y >= -1.0f && hitCheck_.z <= 1.0f && hitCheck_.z >= -1.0f) {
-			debugText_->SetPos(0, 20);
-			debugText_->Printf("Hit!");
-			cameraSpeed = 0.1f;
-			if (input_->TriggerKey(DIK_SPACE)) {
-				bullet->SetisHit(true);
+		CheckAllCollision();
+
+		skydome_->Update();
+
+		enemy_->SetPlayerAngle(player_->GetPlayerAngle());
+
+		/// <summary>
+		/// レイの判定
+		/// </summary>
+		cameraFrontVec = viewProjection_.target - viewProjection_.eye;
+		cameraFrontVec.normalize();
+
+		//敵弾リストの取得
+		const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+		int Count = 0;
+		bool isMove = false;
+		cameraSpeed = 0.3f;
+		for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
+			Count++;
+			if (bullet->GetisMove() == true) {
+				isMove = true;
+			}
+
+			if (bullet->GetisMove() == false && isMove == false) {
+				bullet->Move();
+				isMove = true;
+			}
+
+			bullet->SetBulletVec(bullet->GetWorldPos() - viewProjection_.eye);
+			bullet->BulletVecNormalize();
+			Vector3 bulletPos = bullet->GetWorldPos();
+			float len;
+			len = sqrt(
+			  (bulletPos.x - viewProjection_.eye.x) * (bulletPos.x - viewProjection_.eye.x) +
+			  (bulletPos.z - viewProjection_.eye.z) * (bulletPos.z - viewProjection_.eye.z));
+			cameraFrontVec *= len;
+			bullet->SetBulletVec(bullet->GetBulletVec() * len);
+			Vector3 hitCheck_;
+			hitCheck_ = cameraFrontVec - bullet->GetBulletVec();
+			if (
+			  hitCheck_.x <= 1.0f && hitCheck_.x >= -1.0f && hitCheck_.y <= 1.0f &&
+			  hitCheck_.y >= -1.0f && hitCheck_.z <= 1.0f && hitCheck_.z >= -1.0f) {
+				debugText_->SetPos(0, 20);
+				debugText_->Printf("Hit!");
+				cameraSpeed = 0.1f;
+				if (input_->TriggerKey(DIK_SPACE)) {
+					bullet->SetisHit(true);
+				}
 			}
 		}
-	}
+		if (isMove == false && enemy_->GetCoolTime() < 0) {
+			enemy_->SetInput(-1);
+			enemy_->SetCoolTime(10 * 60);
+		}
 
-	if (input_->PushKey(DIK_RIGHT)) {
-		cameraAngleX -= cameraSpeed;
-		if (cameraAngleX < 0.0f) {
-			cameraAngleX += 360.0f;
+		if (input_->PushKey(DIK_RIGHT)) {
+			cameraAngleX -= cameraSpeed;
+			if (cameraAngleX < 0.0f) {
+				cameraAngleX += 360.0f;
+			}
 		}
-	}
-	if (input_->PushKey(DIK_LEFT)) {
-		cameraAngleX += cameraSpeed;
-		if (cameraAngleX > 360.0f) {
-			cameraAngleX -= 360.0f;
+		if (input_->PushKey(DIK_LEFT)) {
+			cameraAngleX += cameraSpeed;
+			if (cameraAngleX > 360.0f) {
+				cameraAngleX -= 360.0f;
+			}
 		}
-	}
-	if (input_->PushKey(DIK_UP)) {
-		cameraAngleY -= cameraSpeed;
-		if (cameraAngleY < -89.5f) {
-			cameraAngleY = -89.5f;
+		if (input_->PushKey(DIK_UP)) {
+			cameraAngleY -= cameraSpeed;
+			if (cameraAngleY < -89.5f) {
+				cameraAngleY = -89.5f;
+			}
 		}
-	}
-	if (input_->PushKey(DIK_DOWN)) {
-		cameraAngleY += cameraSpeed;
-		if (cameraAngleY > 89.5f) {
-			cameraAngleY = 89.5f;
+		if (input_->PushKey(DIK_DOWN)) {
+			cameraAngleY += cameraSpeed;
+			if (cameraAngleY > 89.5f) {
+				cameraAngleY = 89.5f;
+			}
 		}
-	}
 
-	if (input_->TriggerKey(DIK_1)) {
-		enemy_->SetInput(false);
-	}
+		if (input_->TriggerKey(DIK_1)) {
+			enemy_->SetInput(-1);
+		}
 
-	debugText_->SetPos(0, 40);
-	debugText_->Printf("%d", Count);
+		debugText_->SetPos(0, 40);
+		debugText_->Printf("%d", Count);
+	}
 }
 
 void GameScene::Draw() {
@@ -239,21 +253,25 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-
-	//自キャラの更新
-	player_->Draw(viewProjection_);
-
-	//敵
-	if (enemy_ != NULL) {
-		enemy_->Draw(viewProjection_);
+	
+	if (scene == title) {
+		
 	}
+	if (scene == main && player_->GetLife() != 0) {
+		//自キャラの更新
+		player_->Draw(viewProjection_);
 
-	//天球
-	skydome_->Draw(viewProjection_);
+		//敵
+		if (enemy_ != NULL) {
+			enemy_->Draw(viewProjection_);
+		}
 
-	//水
-	model_->Draw(water_, viewProjection_, waterHandle_);
+		//天球
+		skydome_->Draw(viewProjection_);
 
+		//水
+		model_->Draw(water_, viewProjection_, waterHandle_);
+	}
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	/*for (int i = 0; i < 21; i++) {
 	    PrimitiveDrawer::GetInstance()->DrawLine3d(
@@ -273,15 +291,21 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	sprite_->Draw();
-	if (player_->GetLife() >= 1) {
-		lifeSprite_[0]->Draw();
+	
+	if (scene == title) {
+		
 	}
-	if (player_->GetLife() >= 2) {
-		lifeSprite_[1]->Draw();
-	}
-	if (player_->GetLife() >= 3) {
-		lifeSprite_[2]->Draw();
+	if (scene == main && player_->GetLife() != 0) {
+		sprite_->Draw();
+		if (player_->GetLife() >= 1) {
+			lifeSprite_[0]->Draw();
+		}
+		if (player_->GetLife() >= 2) {
+			lifeSprite_[1]->Draw();
+		}
+		if (player_->GetLife() >= 3) {
+			lifeSprite_[2]->Draw();
+		}
 	}
 	// デバッグテキストの描画
 

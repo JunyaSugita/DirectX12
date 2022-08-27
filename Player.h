@@ -15,7 +15,7 @@
 class Player {
   public:
 	///‰Šú‰»
-	void Initialize(Model* model,uint32_t textureHandle);
+	void Initialize(uint32_t textureHandle);
 
 	///XV
 	void Update();

@@ -7,7 +7,7 @@
 class EnemyBullet {
   public:
 	//初期化
-	void Initialize(Model* model, WorldTransform playerTransform, Vector3 transform);
+	void Initialize(Model* model, Model* model2, WorldTransform playerTransform, Vector3 transform,int type);
 
 	//更新
 	void Update();
@@ -47,6 +47,7 @@ class EnemyBullet {
 	Vector3 transform_;
 	//モデルのポインタ
 	Model* model_ = nullptr;
+	Model* model2_ = nullptr;
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 	uint32_t deadHandle_ = 0;
@@ -70,4 +71,6 @@ class EnemyBullet {
 	Vector3 bulletVec_;
 
 	float playerAngle_;
+
+	int type_;
 };

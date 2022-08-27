@@ -12,6 +12,8 @@ void Enemy::Initialize(Model* model, WorldTransform playerTransform) {
 	model_ = model;
 	//ÉeÉNÉXÉ`ÉÉì«Ç›çûÇ›
 	textureHandle_ = TextureManager::Load("enemy.png");
+	//ÉÇÉfÉãì«Ç›çûÇ›
+	bulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = {0.0f, 0.0f, 0.0f};
@@ -65,16 +67,37 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 }
 
 void Enemy::ApproachFunc() {
-	if (a == false) {
-		Fire(Vector3(-2, 0, 0));
-		Fire(Vector3(2, 0, 0));
-		Fire(Vector3(-2, 4, 0));
-		Fire(Vector3(2, 4, 0));
-		Fire(Vector3(-6, 0, 0));
-		Fire(Vector3(6, 0, 0));
-		Fire(Vector3(-6, 4, 0));
-		Fire(Vector3(6, 4, 0));
-		a = true;
+	coolTime--;
+	if (hp == 4 && coolTime == 0) {
+		Fire(Vector3(0, 0, 0),0);
+		Fire(Vector3(2, 0, 0),0);
+		Fire(Vector3(-2, 0, 0), 0);
+	}
+	if (hp == 3 && coolTime == 0) {
+		Fire(Vector3(-2, 0, 0), 0);
+		Fire(Vector3(6, 0, 0), 1);
+		Fire(Vector3(2, 0, 0), 0);
+		Fire(Vector3(-6, 0, 0), 1);
+	}
+	if (hp == 2 && coolTime == 0) {
+		Fire(Vector3(-3, -1, 0), 1);
+		Fire(Vector3(3, -1, 0), 1);
+		Fire(Vector3(0, 1, 0), 0);
+		Fire(Vector3(3, 1, 0), 0);
+		Fire(Vector3(0, -1, 0), 1);
+		Fire(Vector3(-3, 1, 0), 0);
+	}
+	if (hp == 1 && coolTime == 0) {
+		Fire(Vector3(-6, 1, 0), 0);
+		Fire(Vector3(-3, 1, 0), 0);
+		Fire(Vector3(0, 1, 0), 0);
+		Fire(Vector3(3, 1, 0), 0);
+		Fire(Vector3(6, 1, 0), 0);
+		Fire(Vector3(-6, -1, 0), 1);
+		Fire(Vector3(-3, -1, 0), 1);
+		Fire(Vector3(0, -1, 0), 1);
+		Fire(Vector3(3, -1, 0), 1);
+		Fire(Vector3(6, -1, 0), 1);
 	}
 
 	//ä˘íËÇÃà íuÇ‹Ç≈óàÇΩÇÁó£íE
@@ -91,10 +114,10 @@ void Enemy::LeaveFunc() {
 	}
 }
 
-void Enemy::Fire(Vector3 transform) {
+void Enemy::Fire(Vector3 transform,int type) {
 	//íeÇê∂ê¨ÇµÅAèâä˙âª
 	std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
-	newBullet->Initialize(model_,bulletCenter_, transform);
+	newBullet->Initialize(model_,bulletModel_,bulletCenter_, transform,type);
 
 	//íeÇìoò^Ç∑ÇÈ
 	bullets_.push_back(std::move(newBullet));
@@ -111,13 +134,17 @@ Vector3 Enemy::GetWorldPosition() {
 	return worldPos;
 }
 
+int Enemy::GetCoolTime() { return coolTime; }
+
 void Enemy::SetWorldTransform(WorldTransform playerTransform) {
 	playerTransform_ = playerTransform;
 }
 
 void Enemy::SetPlayerAngle(float angle) { playerAngle_ = angle; }
 
-void Enemy::SetInput(bool is) { a = is; }
+void Enemy::SetInput(int num) { hp += num; }
+
+void Enemy::SetCoolTime(int num) { coolTime = num; }
 
 void Enemy::OnCollision() {}
 

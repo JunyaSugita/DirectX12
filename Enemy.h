@@ -2,9 +2,9 @@
 #include "EnemyBullet.h"
 #include "MatCalc.h"
 #include "Model.h"
+#include "Player.h"
 #include "ViewProjection.h"
 #include <cassert>
-#include "Player.h"
 
 enum class Phase {
 	Approach, //接近
@@ -14,7 +14,7 @@ enum class Phase {
 class Enemy {
   public:
 	//初期化
-	void Initialize(Model* model,WorldTransform playerTransform);
+	void Initialize(Model* model, WorldTransform playerTransform);
 
 	//更新
 	void Update();
@@ -27,7 +27,7 @@ class Enemy {
 	void LeaveFunc();
 
 	//弾発射
-	void Fire(Vector3 transform);
+	void Fire(Vector3 transform, int type);
 
 	//接近フェーズ初期化
 	void ApproachInitialize();
@@ -36,10 +36,12 @@ class Enemy {
 
 	//ゲッター
 	Vector3 GetWorldPosition();
+	int GetCoolTime();
 	//セッター
 	void SetWorldTransform(WorldTransform playerTransform);
 	void SetPlayerAngle(float angle);
-	void SetInput(bool is);
+	void SetInput(int num);
+	void SetCoolTime(int num);
 
 	//当たり判定
 	void OnCollision();
@@ -54,6 +56,7 @@ class Enemy {
 	WorldTransform bulletCenter_;
 	//モデルのポインタ
 	Model* model_ = nullptr;
+	Model* bulletModel_ = nullptr;
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
@@ -75,6 +78,15 @@ class Enemy {
 	float playerAngle_ = 0;
 
 	bool a = true;
+
+	/// <summary>
+	/// 体力
+	/// </summary>
+	int hp = 4;
+	/// <summary>
+	/// クールタイム
+	/// </summary>
+	int coolTime = 15 * 60;
 
   public:
 	//発射間隔
