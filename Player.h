@@ -11,6 +11,7 @@
 #include <memory>
 #include <list>
 #include "PrimitiveDrawer.h"
+#include "Bubble.h"
 
 class Player {
   public:
@@ -43,8 +44,12 @@ class Player {
 	WorldTransform worldTransform_;
 	//モデル
 	Model* model_ = nullptr;
+	//バブル
+	Model* modelBubble_ = nullptr;
+	
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
+	uint32_t bubbleHandle_ = 0;
 
 	Input* input_;
 	DebugText* debugText_;
@@ -60,4 +65,6 @@ class Player {
 
 	//弾
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;
+	//バブル
+	std::list<std::unique_ptr<Bubble>> bubbles_;
 };

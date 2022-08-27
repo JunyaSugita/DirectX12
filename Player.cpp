@@ -3,7 +3,9 @@
 void Player::Initialize(uint32_t textureHandle) {
 
 	model_ = Model::CreateFromOBJ("player", true);
+	modelBubble_ = Model::Create();
 	textureHandle_ = textureHandle;
+	bubbleHandle_ = TextureManager::Load("bubble.png");
 
 	//シングルトンインスタンスを取得
 	input_ = Input::GetInstance();
@@ -18,6 +20,7 @@ void Player::Update() {
 
 	//デスフラグの立った弾を削除
 	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) { return bullet->IsDead(); });
+	bubbles_.remove_if([](std::unique_ptr<Bubble>& bubble) { return bubble->IsDead(); });
 
 	//移動速度
 	const float kCharacterSpeed = 0.1f;
@@ -76,6 +79,15 @@ void Player::Update() {
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
 		bullet->Update();
 	}
+
+	//バブル
+	std::unique_ptr<Bubble> newBubble = std::make_unique<Bubble>();
+	newBubble->Inisialize(modelBubble_, bubbleHandle_, worldTransform_);
+
+	bubbles_.push_back(std::move(newBubble));
+	for (std::unique_ptr<Bubble>& bubble : bubbles_) {
+		bubble->Update();
+	}
 }
 
 void Player::Draw(ViewProjection& viewProjection) {
@@ -85,24 +97,28 @@ void Player::Draw(ViewProjection& viewProjection) {
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}
+
+	for (std::unique_ptr<Bubble>& bubble : bubbles_) {
+		bubble->Draw(viewProjection);
+	}
 }
 
 void Player::Attack() {
-	//if (input_->TriggerKey(DIK_SPACE)) {
-	//	//弾の速度
-	//	const float kBulletSpeed = 1.0f;
-	//	Vector3 velocity(0, 0, kBulletSpeed);
+	if (input_->TriggerKey(DIK_SPACE)) {
+		//弾の速度
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
 
-	//	//自機の向きに合わせる
-	//	velocity *= worldTransform_.matWorld_;
+		//自機の向きに合わせる
+		velocity *= worldTransform_.matWorld_;
 
-	//	//弾を生成し、初期化
-	//	std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-	//	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+		//弾を生成し、初期化
+		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
-	//	//弾を登録する
-	//	bullets_.push_back(std::move(newBullet));
-	//}
+		//弾を登録する
+		bullets_.push_back(std::move(newBullet));
+	}
 }
 
 Vector3 Player::GetWorldPosition() {
