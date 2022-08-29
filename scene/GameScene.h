@@ -82,6 +82,10 @@ class GameScene {
 	float cameraAngleY = 0.0f;
 	float cameraSpeed = 0.1f;
 
+	//弾発射の間隔
+	const int32_t moveCoolTime = 5 * 60;
+	int32_t moveCoolTimer = moveCoolTime;
+
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;

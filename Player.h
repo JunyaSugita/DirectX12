@@ -28,10 +28,14 @@ class Player {
 	void Attack();
 
 	Vector3 GetWorldPosition();
-	Vector3 GetfrontVec();
 	WorldTransform GetWorldTransform();
 	float GetPlayerAngle();
 	uint32_t GetLife();
+	Vector3 GetFrontVec();
+	int GetType() { return type; };
+
+	void SetCameraVec(Vector3 vec) { cameraVec_ = vec; }
+	void SetType(int i) { type = i; }
 
 	float Radian(float r);
 	
@@ -58,13 +62,22 @@ class Player {
 	/// キャラの向き(度数)
 	/// </summary>
 	float angle_ = 0.0f;
+	Vector3 cameraVec_;
 
 	Vector3 frontVec_;
 
 	uint32_t life = 3;
 
+	//射撃タイプ
+	int type = 0;
+
+	//ジャンプタイマー
+	int jumpTimer = 0;
+
 	//弾
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 	//バブル
 	std::list<std::unique_ptr<Bubble>> bubbles_;
+
+
 };

@@ -24,33 +24,44 @@ void Player::Update() {
 
 	//移動速度
 	const float kCharacterSpeed = 0.1f;
-	if (worldTransform_.rotation_.x > 0) {
-		worldTransform_.rotation_.x -= 0.004f;
+	if (type == 0) {
+		if (worldTransform_.rotation_.x > 0) {
+			worldTransform_.rotation_.x -= 0.004f;
+		}
+		if (angle_ < 90 || worldTransform_.translation_.z < -270.0f) {
+			angle_ += 0.03f;
+			if (worldTransform_.rotation_.x < 0.5f) {
+				worldTransform_.rotation_.x += 0.005f;
+			}
+		}
+		if (worldTransform_.translation_.z > 270.0f) {
+			angle_ += 0.03f;
+			if (worldTransform_.rotation_.x < 0.5f) {
+				worldTransform_.rotation_.x += 0.005f;
+			}
+		}
+		if (angle_ >= 360.0f) {
+			angle_ -= 360.0f;
+		}
+		frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 	}
-	if (angle_ < 90 || worldTransform_.translation_.z < -270.0f) {
-		angle_ += 0.03f;
-		if (worldTransform_.rotation_.x < 0.5f) {
-			worldTransform_.rotation_.x += 0.005f;
+	if (type == 1) {
+		angle_ += 5.0f;
+		jumpTimer++;
+		if (worldTransform_.translation_.y <= 100 && jumpTimer >= 500) {
+			worldTransform_.translation_.y += 0.1f;
 		}
 		
-		MatCalc(worldTransform_);
 	}
-	if (worldTransform_.translation_.z > 270.0f) {
-		angle_ += 0.03f;
-		if (worldTransform_.rotation_.x < 0.5f) {
-			worldTransform_.rotation_.x += 0.005f;
-		}
+	if (worldTransform_.translation_.y == 0) {
+		worldTransform_.translation_ += frontVec_ * kCharacterSpeed;
 	}
-	if (angle_ >= 360.0f) {
-		angle_ -= 360.0f;
-	}
-	frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 
-	worldTransform_.translation_ += frontVec_ * kCharacterSpeed;
+	MatCalc(worldTransform_);
 
 	//移動限界
-	//const float kMoveLimitX = 34.0f;
-	//const float kMoveLimitY = 18.0f;
+	// const float kMoveLimitX = 34.0f;
+	// const float kMoveLimitY = 18.0f;
 
 	//範囲を超えない処理
 	// worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
@@ -69,11 +80,12 @@ void Player::Update() {
 	MatCalc(worldTransform_);
 
 	debugText_->SetPos(0, 0);
-	debugText_->Printf(
-	  "%f", angle_);
+	debugText_->Printf("%f", angle_);
 
 	//キャラクターの攻撃
-	Attack();
+	if (type == 1) {
+		Attack();
+	}
 
 	//弾更新
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
@@ -82,7 +94,9 @@ void Player::Update() {
 
 	//バブル
 	std::unique_ptr<Bubble> newBubble = std::make_unique<Bubble>();
-	newBubble->Inisialize(modelBubble_, bubbleHandle_, worldTransform_);
+	if (worldTransform_.translation_.y == 0) {
+		newBubble->Inisialize(modelBubble_, bubbleHandle_, worldTransform_);
+	}
 
 	bubbles_.push_back(std::move(newBubble));
 	for (std::unique_ptr<Bubble>& bubble : bubbles_) {
@@ -97,24 +111,22 @@ void Player::Draw(ViewProjection& viewProjection) {
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}
-
-	for (std::unique_ptr<Bubble>& bubble : bubbles_) {
-		bubble->Draw(viewProjection);
+	if (worldTransform_.translation_.y == 0) {
+		for (std::unique_ptr<Bubble>& bubble : bubbles_) {
+			bubble->Draw(viewProjection);
+		}
 	}
 }
 
 void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 		//弾の速度
-		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
-
-		//自機の向きに合わせる
-		velocity *= worldTransform_.matWorld_;
+		const float kBulletSpeed = 0.1f;
+		cameraVec_ *= kBulletSpeed;
 
 		//弾を生成し、初期化
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+		newBullet->Initialize(modelBubble_, worldTransform_.translation_, cameraVec_);
 
 		//弾を登録する
 		bullets_.push_back(std::move(newBullet));
@@ -127,13 +139,9 @@ Vector3 Player::GetWorldPosition() {
 	return worldPos;
 }
 
-Vector3 Player::GetfrontVec() {
-	Vector3 frontVec;
-	frontVec = frontVec_;
-	return frontVec;
-}
-
 uint32_t Player::GetLife() { return life; }
+
+Vector3 Player::GetFrontVec() { return frontVec_; }
 
 WorldTransform Player::GetWorldTransform() { return worldTransform_; }
 

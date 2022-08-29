@@ -68,7 +68,7 @@ void GameScene::Initialize() {
 	//敵キャラ生成
 	enemy_ = new Enemy();
 	//敵キャラの初期化
-	enemy_->Initialize(model_, player_->GetWorldTransform());
+	enemy_->Initialize(model_, player_->GetWorldTransform(),player_->GetFrontVec());
 	enemy_->SetPlayer(player_);
 
 	//天球
@@ -130,6 +130,7 @@ void GameScene::Update() {
 		viewProjection_.UpdateMatrix();
 
 		//自キャラ更新
+		player_->SetCameraVec(viewProjection_.target - viewProjection_.eye);
 		player_->Update();
 		enemy_->SetWorldTransform(player_->GetWorldTransform());
 
@@ -155,13 +156,14 @@ void GameScene::Update() {
 		int Count = 0;
 		bool isMove = false;
 		cameraSpeed = 0.3f;
+		moveCoolTimer--;
 		for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
 			Count++;
 			if (bullet->GetisMove() == true) {
 				isMove = true;
 			}
 
-			if (bullet->GetisMove() == false && isMove == false) {
+			if (bullet->GetisMove() == false && isMove == false && moveCoolTimer <= 0) {
 				bullet->Move();
 				isMove = true;
 			}
@@ -182,15 +184,17 @@ void GameScene::Update() {
 			  hitCheck_.y >= -1.0f && hitCheck_.z <= 1.0f && hitCheck_.z >= -1.0f) {
 				debugText_->SetPos(0, 20);
 				debugText_->Printf("Hit!");
-				cameraSpeed = 0.1f;
+				//cameraSpeed = 0.1f;
 				if (input_->TriggerKey(DIK_SPACE)) {
 					bullet->SetisHit(true);
+					moveCoolTimer = moveCoolTime;
 				}
 			}
 		}
-		if (isMove == false && enemy_->GetCoolTime() < 0) {
-			enemy_->SetInput(-1);
-			enemy_->SetCoolTime(10 * 60);
+		if (isMove == false && enemy_->GetCoolTime() < 0 && moveCoolTimer < 0) {
+			//enemy_->SetInput(-1);
+			//enemy_->SetCoolTime(10 * 60);
+			player_->SetType(1);
 		}
 
 		if (input_->PushKey(DIK_RIGHT)) {
@@ -221,9 +225,6 @@ void GameScene::Update() {
 		if (input_->TriggerKey(DIK_1)) {
 			enemy_->SetInput(-1);
 		}
-
-		debugText_->SetPos(0, 40);
-		debugText_->Printf("%d", Count);
 	}
 }
 
@@ -342,6 +343,7 @@ void GameScene::CheckAllCollision() {
 		if (len.length() <= 2) {
 			player_->OnCollision();
 			bullet->OnCollision();
+			moveCoolTimer = moveCoolTime;
 		}
 	}
 #pragma endregion

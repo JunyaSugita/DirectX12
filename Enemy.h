@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "ViewProjection.h"
 #include <cassert>
+#include "EnemyCore.h"
 
 enum class Phase {
 	Approach, //接近
@@ -14,7 +15,7 @@ enum class Phase {
 class Enemy {
   public:
 	//初期化
-	void Initialize(Model* model, WorldTransform playerTransform);
+	void Initialize(Model* model, WorldTransform playerTransform, Vector3 playerFrontVec);
 
 	//更新
 	void Update();
@@ -76,6 +77,7 @@ class Enemy {
 	Vector3 playerPosition;
 	Vector3 enemyPosition;
 	float playerAngle_ = 0;
+	Vector3 playerFrontVec_;
 
 	bool a = true;
 
@@ -87,6 +89,9 @@ class Enemy {
 	/// クールタイム
 	/// </summary>
 	int coolTime = 15 * 60;
+
+	//コア
+	EnemyCore* enemyCore_[4];
 
   public:
 	//発射間隔

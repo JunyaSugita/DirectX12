@@ -37,7 +37,7 @@ void EnemyBullet::Update() {
 		}
 		if (isMove_ == true) {
 			//座標を移動
-			worldTransform_.translation_ += velocity_;
+			worldTransform_.translation_ += velocity2_;
 			//モデルの回転
 			worldTransform_.rotation_.x -= 0.005f;
 			worldTransform_.rotation_.y -= 0.005f;
@@ -45,9 +45,11 @@ void EnemyBullet::Update() {
 			MatCalc(worldTransform_);
 
 			//時間経過でデス
-			if (--deathTimer_ <= 0) {
-				isDead_ = true;
+			deathTimer_--;
+			if (deathTimer_ <= 0) {
+				deathTimer_ = 0;
 			}
+
 		}
 	} else {
 		velocity_.y = 0.0f;
@@ -116,9 +118,13 @@ bool EnemyBullet::GetisMove() { return isMove_; }
 
 bool EnemyBullet::GetisHit() { return isHit_; }
 
+uint32_t EnemyBullet::GetTimer() { return deathTimer_; }
+
 void EnemyBullet::SetBulletVec(Vector3 Vec) { bulletVec_ = Vec; }
 
 void EnemyBullet::SetVelocity(Vector3 velocity) { velocity_ = velocity; }
+
+void EnemyBullet::SetVelocity2(Vector3 velocity) { velocity2_ = velocity; }
 
 void EnemyBullet::SetisHit(bool isHit) { isHit_ = isHit; }
 

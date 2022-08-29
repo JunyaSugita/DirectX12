@@ -5,7 +5,7 @@ void (Enemy::*Enemy::phaseFuncTable[])() = {
   &Enemy::LeaveFunc,
 };
 
-void Enemy::Initialize(Model* model, WorldTransform playerTransform) {
+void Enemy::Initialize(Model* model, WorldTransform playerTransform, Vector3 playerFrontVec) {
 	// NULLポインタチェック
 	assert(model);
 
@@ -22,8 +22,17 @@ void Enemy::Initialize(Model* model, WorldTransform playerTransform) {
 	bulletCenter_.Initialize();
 
 	playerTransform_ = playerTransform;
+	playerFrontVec_ = playerFrontVec;
 
 	ApproachInitialize();
+
+	for (int i = 0; i < 4;i++) {
+		enemyCore_[i] = new EnemyCore;
+	}
+	enemyCore_[0]->Initialize(Vector3(0, 100, 0),model_);
+	enemyCore_[1]->Initialize(Vector3(100, 100, 100), model_);
+	enemyCore_[2]->Initialize(Vector3(100, 100, 0), model_);
+	enemyCore_[3]->Initialize(Vector3(0, 100, 100), model_);
 }
 
 void Enemy::Update() {
@@ -35,7 +44,8 @@ void Enemy::Update() {
 
 	bulletCenter_.translation_ = playerTransform_.translation_;
 	bulletCenter_.rotation_ = playerTransform_.rotation_;
-	bulletCenter_.translation_ += {cos(Radian(playerAngle_ - 90)) * -60, 8, sin(Radian(playerAngle_ - 90)) * -60};
+	bulletCenter_.translation_ +=
+	  {cos(Radian(playerAngle_ - 90)) * -60, 8, sin(Radian(playerAngle_ - 90)) * -60};
 	MatCalc(bulletCenter_);
 
 	playerPosition = playerTransform_.translation_;
@@ -43,13 +53,32 @@ void Enemy::Update() {
 	//弾更新
 	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
 		//弾の速度
-		const float kBulletSpeed = 0.15f;
+		float kBulletSpeed = 0.15f;
 
 		Vector3 playerLen = playerPosition - bullet->GetWorldPos();
 		playerLen.normalize();
+
+		uint32_t len = bullet->GetTimer();
+
+		if (len > 1500) {
+			len /= 10;
+		} else if (len > 1250) {
+			len = 20;
+		} else {
+			len = 0;
+		}
+
+		Vector3 playerLen2 =
+		  (playerPosition +
+		   (Vector3(cos(Radian(playerAngle_)), 0, sin(Radian(playerAngle_))) * len)) -
+		  bullet->GetWorldPos();
+		playerLen2.normalize();
+
 		playerLen *= kBulletSpeed;
+		playerLen2 *= kBulletSpeed;
 
 		bullet->SetVelocity(playerLen);
+		bullet->SetVelocity2(playerLen2);
 		bullet->SetWorldTransform(bulletCenter_);
 		bullet->SetPlayerAngle(playerAngle_);
 
@@ -64,13 +93,17 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}
+
+	for (EnemyCore* enemyCore : enemyCore_) {
+		enemyCore->Draw(viewProjection);
+	}
 }
 
 void Enemy::ApproachFunc() {
 	coolTime--;
 	if (hp == 4 && coolTime == 0) {
-		Fire(Vector3(0, 0, 0),0);
-		Fire(Vector3(2, 0, 0),0);
+		Fire(Vector3(0, 0, 0), 0);
+		Fire(Vector3(2, 0, 0), 0);
 		Fire(Vector3(-2, 0, 0), 0);
 	}
 	if (hp == 3 && coolTime == 0) {
@@ -114,10 +147,10 @@ void Enemy::LeaveFunc() {
 	}
 }
 
-void Enemy::Fire(Vector3 transform,int type) {
+void Enemy::Fire(Vector3 transform, int type) {
 	//弾を生成し、初期化
 	std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
-	newBullet->Initialize(model_,bulletModel_,bulletCenter_, transform,type);
+	newBullet->Initialize(model_, bulletModel_, bulletCenter_, transform, type);
 
 	//弾を登録する
 	bullets_.push_back(std::move(newBullet));

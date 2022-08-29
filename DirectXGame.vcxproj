@@ -100,6 +100,7 @@
     <ClCompile Include="Bubble.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyBullet.cpp" />
+    <ClCompile Include="EnemyCore.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatCalc.cpp" />
     <ClCompile Include="math\Matrix4.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="Bubble.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyBullet.h" />
+    <ClInclude Include="EnemyCore.h" />
     <ClInclude Include="input\Input.h" />
     <ClInclude Include="MatCalc.h" />
     <ClInclude Include="math\MathUtility.h" />

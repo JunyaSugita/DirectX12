@@ -24,10 +24,12 @@ class EnemyBullet {
 	Vector3 GetBulletVec();
 	bool GetisMove();
 	bool GetisHit();
+	uint32_t GetTimer();
 
 	//セッター
 	void SetBulletVec(Vector3 Vec);
 	void SetVelocity(Vector3 velocity);
+	void SetVelocity2(Vector3 velocity);
 	void SetisHit(bool isHit);
 	void SetWorldTransform(WorldTransform worldTransform);
 	void SetPlayerAngle(float angle);
@@ -54,9 +56,10 @@ class EnemyBullet {
 
 	//速度
 	Vector3 velocity_;
+	Vector3 velocity2_;
 
 	//寿命
-	static const int32_t kLifeTime = 60 * 300;
+	static const int32_t kLifeTime = 2000;
 
 	//デスタイマー
 	int32_t deathTimer_ = kLifeTime;
