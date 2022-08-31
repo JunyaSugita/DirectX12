@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "ViewProjection.h"
 #include <cassert>
+#include "Break.h"
 
 class EnemyBullet {
   public:
@@ -59,10 +60,11 @@ class EnemyBullet {
 	Vector3 velocity2_;
 
 	//寿命
-	static const int32_t kLifeTime = 2000;
+	static const int32_t kLifeTime = 200;
 
 	//デスタイマー
 	int32_t deathTimer_ = kLifeTime;
+	int32_t lenTimer_ = 800;
 	//デスフラグ
 	bool isDead_ = false;
 	//移動フラグ
@@ -76,4 +78,8 @@ class EnemyBullet {
 	float playerAngle_;
 
 	int type_;
+
+	//ブレイク
+	std::list<std::unique_ptr<Break>> break_;
+	bool isBreak_ = false;
 };

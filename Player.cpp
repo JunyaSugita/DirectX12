@@ -25,16 +25,18 @@ void Player::Update() {
 	//ˆÚ“®‘¬“x
 	const float kCharacterSpeed = 0.1f;
 	if (type == 0) {
+		angle_ = saveAngle_;
+		worldTransform_.translation_.y = 0;
 		if (worldTransform_.rotation_.x > 0) {
 			worldTransform_.rotation_.x -= 0.004f;
 		}
-		if (angle_ < 90 || worldTransform_.translation_.z < -270.0f) {
+		if (angle_ < 90 || worldTransform_.translation_.z < -200.0f) {
 			angle_ += 0.03f;
 			if (worldTransform_.rotation_.x < 0.5f) {
 				worldTransform_.rotation_.x += 0.005f;
 			}
 		}
-		if (worldTransform_.translation_.z > 270.0f) {
+		if (worldTransform_.translation_.z > 200.0f) {
 			angle_ += 0.03f;
 			if (worldTransform_.rotation_.x < 0.5f) {
 				worldTransform_.rotation_.x += 0.005f;
@@ -43,17 +45,18 @@ void Player::Update() {
 		if (angle_ >= 360.0f) {
 			angle_ -= 360.0f;
 		}
-		frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
+		saveAngle_ = angle_;
+		jumpTimer = 0;
 	}
 	if (type == 1) {
 		angle_ += 5.0f;
 		jumpTimer++;
-		if (worldTransform_.translation_.y <= 100 && jumpTimer >= 500) {
+		if (worldTransform_.translation_.y <= 120 && jumpTimer >= 500) {
 			worldTransform_.translation_.y += 0.1f;
 		}
-		
 	}
 	if (worldTransform_.translation_.y == 0) {
+		frontVec_ = {cos(Radian(angle_)), 0, sin(Radian(angle_))};
 		worldTransform_.translation_ += frontVec_ * kCharacterSpeed;
 	}
 
@@ -94,9 +97,7 @@ void Player::Update() {
 
 	//ƒoƒuƒ‹
 	std::unique_ptr<Bubble> newBubble = std::make_unique<Bubble>();
-	if (worldTransform_.translation_.y == 0) {
-		newBubble->Inisialize(modelBubble_, bubbleHandle_, worldTransform_);
-	}
+	newBubble->Inisialize(modelBubble_, bubbleHandle_, worldTransform_);
 
 	bubbles_.push_back(std::move(newBubble));
 	for (std::unique_ptr<Bubble>& bubble : bubbles_) {

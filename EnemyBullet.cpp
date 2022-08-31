@@ -24,67 +24,80 @@ void EnemyBullet::Initialize(
 
 void EnemyBullet::Update() {
 	if (type_ == 0) {
-		if (isHit_ == true) {
-			isDead_ = true;
-		}
-		if (isMove_ == false) {
-			worldTransform_.translation_ = bulletCenter_.translation_;
-			worldTransform_.translation_ +=
-			  {cos(Radian(playerAngle_)) * transform_.x, transform_.y,
-			   sin(Radian(playerAngle_)) * transform_.x};
-			worldTransform_.rotation_ = {0, -Radian(playerAngle_), 0};
-			MatCalc(worldTransform_);
-		}
-		if (isMove_ == true) {
-			//座標を移動
-			worldTransform_.translation_ += velocity2_;
-			//モデルの回転
-			worldTransform_.rotation_.x -= 0.005f;
-			worldTransform_.rotation_.y -= 0.005f;
+		if (isHit_ == true && isBreak_ == false) {
+			// Break
+			std::unique_ptr<Break> newBreak = std::make_unique<Break>();
+			newBreak->Inisialize(model_, textureHandle_, worldTransform_);
 
-			MatCalc(worldTransform_);
-
-			//時間経過でデス
-			deathTimer_--;
-			if (deathTimer_ <= 0) {
-				deathTimer_ = 0;
+			break_.push_back(std::move(newBreak));
+			isBreak_ = true;
+		}
+		if (isHit_ == false) {
+			if (isMove_ == false) {
+				worldTransform_.translation_ = bulletCenter_.translation_;
+				worldTransform_.translation_ +=
+				  {cos(Radian(playerAngle_)) * transform_.x, transform_.y,
+				   sin(Radian(playerAngle_)) * transform_.x};
+				worldTransform_.rotation_ = {0, -Radian(playerAngle_), 0};
+				MatCalc(worldTransform_);
 			}
+			if (isMove_ == true) {
+				//座標を移動
+				worldTransform_.translation_ += velocity2_;
+				//モデルの回転
+				worldTransform_.rotation_.x -= 0.005f;
+				worldTransform_.rotation_.y -= 0.005f;
 
+				MatCalc(worldTransform_);
+				if (lenTimer_ > 2) {
+					lenTimer_--;
+				}
+			}
 		}
 	} else {
 		velocity_.y = 0.0f;
 		if (worldTransform_.translation_.y > -0.0f) {
 			worldTransform_.translation_.y -= 0.1f;
 		}
-		if (isHit_ == true) {
-			isDead_ = true;
-		}
-		if (isMove_ == false) {
-			worldTransform_.translation_ = bulletCenter_.translation_;
-			worldTransform_.translation_ +=
-			  {cos(Radian(playerAngle_)) * transform_.x, transform_.y,
-			   sin(Radian(playerAngle_)) * transform_.x};
-			worldTransform_.rotation_ = {0, -Radian(playerAngle_), 0};
-			MatCalc(worldTransform_);
-		}
-		if (isMove_ == true) {
-			//座標を移動
-			worldTransform_.translation_ += velocity_;
-			//モデルの回転
-			worldTransform_.rotation_.x -= velocity_.x / 10;
-			worldTransform_.rotation_.z -= velocity_.z / 10;
+		if (isHit_ == true && isBreak_ == false) {
+			// Break
+			std::unique_ptr<Break> newBreak = std::make_unique<Break>();
+			newBreak->Inisialize(model_, textureHandle_, worldTransform_);
 
-			MatCalc(worldTransform_);
+			break_.push_back(std::move(newBreak));
+			isBreak_ = true;
+		}
+		if (isHit_ == false) {
+			if (isMove_ == false) {
+				worldTransform_.translation_ = bulletCenter_.translation_;
+				worldTransform_.translation_ +=
+				  {cos(Radian(playerAngle_)) * transform_.x, transform_.y,
+				   sin(Radian(playerAngle_)) * transform_.x};
+				worldTransform_.rotation_ = {0, -Radian(playerAngle_), 0};
+				MatCalc(worldTransform_);
+			}
+			if (isMove_ == true) {
+				//座標を移動
+				worldTransform_.translation_ += velocity_;
+				//モデルの回転
+				worldTransform_.rotation_.x -= velocity_.x / 10;
+				worldTransform_.rotation_.z -= velocity_.z / 10;
 
-			//時間経過でデス
-			if (--deathTimer_ <= 0) {
-				isDead_ = true;
+				MatCalc(worldTransform_);
 			}
 		}
 	}
-
+	for (std::unique_ptr<Break>& bubble : break_) {
+		bubble->Update();
+	}
 	if (worldTransform_.translation_.y <= -3.0f) {
 		isDead_ = true;
+	}
+	//時間経過でデス
+	if (isHit_ == true) {
+		if (--deathTimer_ <= 0) {
+			isDead_ = true;
+		}
 	}
 }
 
@@ -95,8 +108,10 @@ void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 		} else {
 			model_->Draw(worldTransform_, viewProjection, textureHandle_);
 		}
-	} else {
-		model_->Draw(worldTransform_, viewProjection, deadHandle_);
+	}
+
+	for (std::unique_ptr<Break>& break1 : break_) {
+		break1->Draw(viewProjection);
 	}
 }
 
@@ -118,7 +133,7 @@ bool EnemyBullet::GetisMove() { return isMove_; }
 
 bool EnemyBullet::GetisHit() { return isHit_; }
 
-uint32_t EnemyBullet::GetTimer() { return deathTimer_; }
+uint32_t EnemyBullet::GetTimer() { return lenTimer_; }
 
 void EnemyBullet::SetBulletVec(Vector3 Vec) { bulletVec_ = Vec; }
 
@@ -136,6 +151,17 @@ void EnemyBullet::SetPlayerAngle(float angle) { playerAngle_ = angle; }
 
 void EnemyBullet::BulletVecNormalize() { bulletVec_.normalize(); }
 
-void EnemyBullet::OnCollision() { isDead_ = true; }
+void EnemyBullet::OnCollision() { 
+	//isDead_ = true; 
+	isHit_ = true;
+	//Break
+	std::unique_ptr<Break> newBreak = std::make_unique<Break>();
+	newBreak->Inisialize(model_, textureHandle_, worldTransform_);
+
+	break_.push_back(std::move(newBreak));
+	for (std::unique_ptr<Break>& bubble : break_) {
+		bubble->Update();
+	}
+}
 
 float EnemyBullet::Radian(float r) { return r * (3.14159265f / 180); }

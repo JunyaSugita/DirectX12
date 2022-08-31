@@ -16,6 +16,7 @@ GameScene::~GameScene() {
 	delete enemy_;
 	delete skydome_;
 	delete sprite_;
+	delete modelEnemy_;
 	delete modelEnemyBullet_;
 }
 
@@ -42,6 +43,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 	modelSkydome_ = Model::CreateFromOBJ("sky", true);
+	modelEnemy_ = Model::CreateFromOBJ("ere", true);
 	modelEnemyBullet_ = Model::CreateFromOBJ("enemyBullet", true);
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -68,7 +70,7 @@ void GameScene::Initialize() {
 	//敵キャラ生成
 	enemy_ = new Enemy();
 	//敵キャラの初期化
-	enemy_->Initialize(model_, player_->GetWorldTransform(),player_->GetFrontVec());
+	enemy_->Initialize(model_,modelEnemy_, player_->GetWorldTransform(),player_->GetFrontVec());
 	enemy_->SetPlayer(player_);
 
 	//天球
@@ -184,7 +186,12 @@ void GameScene::Update() {
 			  hitCheck_.y >= -1.0f && hitCheck_.z <= 1.0f && hitCheck_.z >= -1.0f) {
 				debugText_->SetPos(0, 20);
 				debugText_->Printf("Hit!");
-				//cameraSpeed = 0.1f;
+				if (
+				  hitCheck_.x <= 0.5f && hitCheck_.x >= -0.5f && hitCheck_.y <= 0.5f &&
+				  hitCheck_.y >= -0.5f && hitCheck_.z <= 0.5f && hitCheck_.z >= -0.5f&&
+					bullet->GetisHit() == false) {
+					cameraSpeed = 0.1f;
+				}
 				if (input_->TriggerKey(DIK_SPACE)) {
 					bullet->SetisHit(true);
 					moveCoolTimer = moveCoolTime;
@@ -192,8 +199,6 @@ void GameScene::Update() {
 			}
 		}
 		if (isMove == false && enemy_->GetCoolTime() < 0 && moveCoolTimer < 0) {
-			//enemy_->SetInput(-1);
-			//enemy_->SetCoolTime(10 * 60);
 			player_->SetType(1);
 		}
 
@@ -222,8 +227,21 @@ void GameScene::Update() {
 			}
 		}
 
-		if (input_->TriggerKey(DIK_1)) {
-			enemy_->SetInput(-1);
+		if (player_->GetLife() <= 0) {
+			scene = gameover;
+		}
+		if (enemy_->GetLife() <= 0) {
+			scene = gameCrear;
+		}
+	}
+	if (scene == gameCrear) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			scene = main;
+		}
+	}
+	if (scene == gameover) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			scene = main;
 		}
 	}
 }
@@ -341,8 +359,10 @@ void GameScene::CheckAllCollision() {
 		len = posB - posA;
 
 		if (len.length() <= 2) {
-			player_->OnCollision();
-			bullet->OnCollision();
+			if (bullet->GetisHit() == false) {
+				player_->OnCollision();
+				bullet->OnCollision();
+			}
 			moveCoolTimer = moveCoolTime;
 		}
 	}
@@ -367,6 +387,30 @@ void GameScene::CheckAllCollision() {
 	}
 #pragma endregion
 
+#pragma region 自弾と敵のコアの当たり判定
+	for (int i = 0; i < 4;i++) {
+		//敵コアの座標
+		if (enemy_->core_[i]->GetisDead() == false) {
+			posA = enemy_->core_[i]->GetWorldPos();
+			for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets) {
+				posB = bullet->GetWorldPos();
+
+				Vector3 len;
+				len = posA - posB;
+
+				if (len.length() <= 5) {
+					enemy_->core_[i]->OnCollision();
+					bullet->OnCollision();
+					player_->SetType(0);
+					moveCoolTimer = moveCoolTime;
+					enemy_->SetInput(-1);
+					enemy_->SetCoolTime(10 * 60);
+				}
+			}
+		}
+	}
+
+#pragma endregion
 #pragma region 自弾と敵弾の当たり判定
 	for (const std::unique_ptr<EnemyBullet>& eneBullet : enemyBullets) {
 		//敵キャラの座標

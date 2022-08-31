@@ -1,15 +1,15 @@
 #include "Bubble.h"
-#include <random>
 #include <cassert>
+#include <random>
 
-void Bubble::Inisialize(Model* model,uint32_t textur,WorldTransform playerTransform) {
+void Bubble::Inisialize(Model* model, uint32_t textur, WorldTransform playerTransform) {
 	assert(model);
 
 	//ƒ‰ƒ“ƒ_ƒ€
 	std::random_device seed_gen;
 	std::mt19937_64 engine(seed_gen());
 	std::uniform_real_distribution<float> x(-0.05f, -0.01f);
-	std::uniform_real_distribution<float> y(0.01f, 0.01f);
+	std::uniform_real_distribution<float> y(0.00f, 0.01f);
 	std::uniform_real_distribution<float> z(-0.01f, 0.01f);
 
 	model_ = model;
@@ -24,7 +24,7 @@ void Bubble::Inisialize(Model* model,uint32_t textur,WorldTransform playerTransf
 	move_ = {x(engine), y(engine), z(engine)};
 }
 
-void Bubble::Update() { 
+void Bubble::Update() {
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
 	}
@@ -37,10 +37,8 @@ void Bubble::Update() {
 	MatCalc(worldTransform_);
 }
 
-void Bubble::Move() {
-
-}
+void Bubble::Move() {}
 
 void Bubble::Draw(ViewProjection viewProjection) {
-	model_->Draw(worldTransform_, viewProjection,textur_);
+	model_->Draw(worldTransform_, viewProjection, textur_);
 }

@@ -15,7 +15,8 @@ enum class Phase {
 class Enemy {
   public:
 	//初期化
-	void Initialize(Model* model, WorldTransform playerTransform, Vector3 playerFrontVec);
+	void Initialize(
+	  Model* model, Model* model2, WorldTransform playerTransform, Vector3 playerFrontVec);
 
 	//更新
 	void Update();
@@ -38,6 +39,7 @@ class Enemy {
 	//ゲッター
 	Vector3 GetWorldPosition();
 	int GetCoolTime();
+	int GetLife() { return hp; }
 	//セッター
 	void SetWorldTransform(WorldTransform playerTransform);
 	void SetPlayerAngle(float angle);
@@ -57,6 +59,7 @@ class Enemy {
 	WorldTransform bulletCenter_;
 	//モデルのポインタ
 	Model* model_ = nullptr;
+	Model* model2_ = nullptr;
 	Model* bulletModel_ = nullptr;
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
@@ -88,12 +91,14 @@ class Enemy {
 	/// <summary>
 	/// クールタイム
 	/// </summary>
-	int coolTime = 15 * 60;
-
-	//コア
-	EnemyCore* enemyCore_[4];
+	
+	const int coolTime = 15 * 60;
+	int coolTimer = coolTime;
 
   public:
 	//発射間隔
 	static const int kFireInterval = 60 * 10;
+
+	//コア
+	EnemyCore* core_[4];
 };

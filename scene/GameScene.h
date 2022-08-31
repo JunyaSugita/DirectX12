@@ -74,6 +74,7 @@ class GameScene {
 	// 3Dモデル
 	Model* model_ = nullptr;
 	Model* modelSkydome_ = nullptr;
+	Model* modelEnemy_ = nullptr;
 	Model* modelEnemyBullet_ = nullptr;
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
@@ -111,6 +112,8 @@ class GameScene {
 	enum Scene{
 		title,
 		main,
+		gameCrear,
+		gameover,
 	};
 
 	int scene = title;

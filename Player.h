@@ -62,6 +62,7 @@ class Player {
 	/// ƒLƒƒƒ‰‚ÌŒü‚«(“x”)
 	/// </summary>
 	float angle_ = 0.0f;
+	float saveAngle_ = 0.0f;
 	Vector3 cameraVec_;
 
 	Vector3 frontVec_;

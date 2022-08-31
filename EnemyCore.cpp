@@ -8,6 +8,7 @@ void EnemyCore::Initialize(Vector3 transform,Model* model) {
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = transform;
+	worldTransform_.scale_ = {3.0f, 3.0f, 3.0f};
 	MatCalc(worldTransform_);
 }
 
@@ -16,5 +17,14 @@ void EnemyCore::Update() {
 }
 
 void EnemyCore::Draw(ViewProjection viewProjection) {
-	model_->Draw(worldTransform_, viewProjection, textur_);
+	if (isDead_ == false) {
+		model_->Draw(worldTransform_, viewProjection, textur_);
+	}
+}
+
+void EnemyCore::OnCollision() { isDead_ = true; }
+
+Vector3 EnemyCore::GetWorldPos() {
+	Vector3 a = worldTransform_.translation_;
+	return a;
 }
