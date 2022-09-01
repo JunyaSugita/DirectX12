@@ -10,7 +10,7 @@ void Break::Inisialize(Model* model, uint32_t textur, WorldTransform bulletTrans
 	std::mt19937_64 engine(seed_gen());
 	for (int i = 0; i < 8; i++) {
 		std::uniform_real_distribution<float> x(-0.01f, 0.01f);
-		std::uniform_real_distribution<float> y(0.01f, 0.05f);
+		std::uniform_real_distribution<float> y(0.01f, 0.1f);
 		std::uniform_real_distribution<float> z(-0.01f, 0.01f);
 
 		std::uniform_real_distribution<float> rx(-0.05f, 0.05f);

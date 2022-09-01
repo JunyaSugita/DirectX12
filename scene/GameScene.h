@@ -77,9 +77,10 @@ class GameScene {
 	Model* modelEnemy_ = nullptr;
 	Model* modelEnemyBullet_ = nullptr;
 	//ビュープロジェクション
-	ViewProjection viewProjection_;
+	ViewProjection viewProjection_[5];
+	uint32_t cameraNum_ = 0;
 
-	float cameraAngleX = 270.0f;
+	float cameraAngleX = 300.0f;
 	float cameraAngleY = 0.0f;
 	float cameraSpeed = 0.1f;
 
@@ -97,14 +98,42 @@ class GameScene {
 	//カメラベクトル
 	Vector3 cameraFrontVec;
 
+	//カメラ時間
+	const uint32_t cameraTime = 5 * 60;
+	uint32_t cameraTimer = cameraTime;
+
 	//スプライト
 	Sprite* sprite_ = nullptr;
 	uint32_t scopeHandle_ = 0;
 	Sprite* lifeSprite_[3];
 	uint32_t lifeHandle_ = 0;
+	Sprite* titleSprite_ = nullptr;
+	uint32_t titleHandle_ = 0;
+	Sprite* startSprite_ = nullptr;
+	uint32_t startHandle_ = 0;
+	Sprite* goTitleSprite_ = nullptr;
+	uint32_t goTitleHandle_ = 0;
+	Sprite* goRetrySprite_ = nullptr;
+	uint32_t goRetryHandle_ = 0;
+	Sprite* gameClearSprite_ = nullptr;
+	uint32_t gameClearHandle_ = 0;
+	Sprite* gameoverSprite_ = nullptr;
+	uint32_t gameoverHandle_ = 0;
+	Sprite* setumeiSprite_ = nullptr;
+	uint32_t setumeiHandle_ = 0;
+	Sprite* setumei2Sprite_ = nullptr;
+	uint32_t setumei2Handle_ = 0;
+
+	//サウンド
+	uint32_t gameBGM_ = 0;
+	uint32_t iceBreakSE_ = 0;
 
 	//水
 	WorldTransform water_;
+
+	//死カウント
+	const uint32_t deathTime = 30 * 60;
+	uint32_t deathTimer = deathTime;
 
 	/// <summary>
 	/// ゲームシーン用

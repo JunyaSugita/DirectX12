@@ -27,6 +27,9 @@ class Player {
 	//çUåÇ
 	void Attack();
 
+	//ì|ÇÍÇÈ
+	void taoreru();
+
 	Vector3 GetWorldPosition();
 	WorldTransform GetWorldTransform();
 	float GetPlayerAngle();

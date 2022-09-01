@@ -1,4 +1,4 @@
-#pragma 
+#pragma once
 #include "MatCalc.h"
 #include "Model.h"
 #include "ViewProjection.h"
@@ -23,7 +23,7 @@ class Break {
 	Model* model_ = nullptr;
 	uint32_t textur_ = 0;
 
-	static const int32_t kLifeTime = 60;
+	static const int32_t kLifeTime = 60 * 5;
 
 	int32_t deathTimer_ = kLifeTime;
 	bool isDead_ = false;

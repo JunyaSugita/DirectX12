@@ -78,6 +78,10 @@ void Enemy::Update() {
 
 		bullet->Update();
 	}
+
+	for (EnemyCore* enemyCore : core_) {
+		enemyCore->Update();
+	}
 }
 
 void Enemy::Draw(const ViewProjection& viewProjection) {

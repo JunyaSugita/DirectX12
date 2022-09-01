@@ -16,4 +16,6 @@ class Skydome {
 	WorldTransform worldTransform_;
 
 	Model* model_ = nullptr;
+
+	uint32_t texture_ = 0;
 };

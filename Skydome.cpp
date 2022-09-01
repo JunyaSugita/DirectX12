@@ -3,6 +3,7 @@
 void Skydome::Initialize(Model* model) { 
 	assert(model);
 	model_ = model;
+	texture_ = TextureManager::Load("skydome.png");
 
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {10000.0f, 1000.0f, 10000.0f};
@@ -12,5 +13,5 @@ void Skydome::Initialize(Model* model) {
 void Skydome::Update() {}
 
 void Skydome::Draw(const ViewProjection& viewProjection) {
-	model_->Draw(worldTransform_, viewProjection);
+	model_->Draw(worldTransform_, viewProjection,texture_);
 }

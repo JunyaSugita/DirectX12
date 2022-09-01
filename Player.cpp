@@ -30,13 +30,13 @@ void Player::Update() {
 		if (worldTransform_.rotation_.x > 0) {
 			worldTransform_.rotation_.x -= 0.004f;
 		}
-		if (angle_ < 90 || worldTransform_.translation_.z < -200.0f) {
+		if (angle_ < 90 || worldTransform_.translation_.z < -150.0f) {
 			angle_ += 0.03f;
 			if (worldTransform_.rotation_.x < 0.5f) {
 				worldTransform_.rotation_.x += 0.005f;
 			}
 		}
-		if (worldTransform_.translation_.z > 200.0f) {
+		if (worldTransform_.translation_.z > 150.0f) {
 			angle_ += 0.03f;
 			if (worldTransform_.rotation_.x < 0.5f) {
 				worldTransform_.rotation_.x += 0.005f;
@@ -51,7 +51,7 @@ void Player::Update() {
 	if (type == 1) {
 		angle_ += 5.0f;
 		jumpTimer++;
-		if (worldTransform_.translation_.y <= 120 && jumpTimer >= 500) {
+		if (worldTransform_.translation_.y <= 300 && jumpTimer >= 500) {
 			worldTransform_.translation_.y += 0.1f;
 		}
 	}
@@ -104,6 +104,8 @@ void Player::Update() {
 		bubble->Update();
 	}
 }
+
+void Player::taoreru() { worldTransform_.rotation_.x -= 0.001; }
 
 void Player::Draw(ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection);
