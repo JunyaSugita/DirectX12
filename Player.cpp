@@ -105,7 +105,9 @@ void Player::Update() {
 	}
 }
 
-void Player::taoreru() { worldTransform_.rotation_.x -= 0.001; }
+void Player::taoreru() { worldTransform_.rotation_.x -= 0.001f; }
+
+void Player::naosu() { worldTransform_.rotation_.x = 0.0f; }
 
 void Player::Draw(ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection);

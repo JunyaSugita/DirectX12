@@ -92,7 +92,7 @@ class Enemy {
 	/// クールタイム
 	/// </summary>
 	
-	const int coolTime = 15 * 60;
+	const int coolTime = 10 * 60;
 	int coolTimer = coolTime;
 
   public:

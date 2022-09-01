@@ -29,6 +29,7 @@ class Player {
 
 	//“|‚ê‚é
 	void taoreru();
+	void naosu();
 
 	Vector3 GetWorldPosition();
 	WorldTransform GetWorldTransform();

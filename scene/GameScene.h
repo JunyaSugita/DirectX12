@@ -80,12 +80,12 @@ class GameScene {
 	ViewProjection viewProjection_[5];
 	uint32_t cameraNum_ = 0;
 
-	float cameraAngleX = 300.0f;
+	float cameraAngleX = 315.0f;
 	float cameraAngleY = 0.0f;
 	float cameraSpeed = 0.1f;
 
 	//弾発射の間隔
-	const int32_t moveCoolTime = 5 * 60;
+	const int32_t moveCoolTime = 15 * 60;
 	int32_t moveCoolTimer = moveCoolTime;
 
 	//デバッグカメラ
@@ -132,7 +132,7 @@ class GameScene {
 	WorldTransform water_;
 
 	//死カウント
-	const uint32_t deathTime = 30 * 60;
+	const uint32_t deathTime = 20 * 60;
 	uint32_t deathTimer = deathTime;
 
 	/// <summary>

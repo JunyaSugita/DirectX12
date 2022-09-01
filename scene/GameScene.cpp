@@ -129,7 +129,7 @@ void GameScene::Initialize() {
 
 	//サウンド
 	gameBGM_ = audio_->LoadWave("sound/gameBGM.wav");
-	audio_->PlayWave(gameBGM_,true,0.1f);
+	audio_->PlayWave(gameBGM_, true, 0.1f);
 
 	iceBreakSE_ = audio_->LoadWave("sound/iceBreak.wav");
 }
@@ -149,6 +149,20 @@ void GameScene::Update() {
 	if (scene == title) {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			scene = main;
+			///初期化
+			delete player_;
+			delete enemy_;
+			//自キャラ生成
+			player_ = new Player();
+			//自キャラの初期化
+			player_->Initialize(textureHandle_);
+			//敵キャラ生成
+			enemy_ = new Enemy();
+			//敵キャラの初期化
+			enemy_->Initialize(model_, modelEnemy_, player_->GetWorldTransform(), player_->GetFrontVec());
+			enemy_->SetPlayer(player_);
+			deathTimer = deathTime;
+			moveCoolTimer = moveCoolTime;
 		}
 		if (isDebugCameraActive_) {
 			debugCamera_->Update();
@@ -176,6 +190,35 @@ void GameScene::Update() {
 		player_->SetCameraVec(viewProjection_[0].target - viewProjection_[0].eye);
 		player_->Update();
 		enemy_->SetWorldTransform(player_->GetWorldTransform());
+	}
+	if (scene == gameCrear) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			scene = title;
+		}
+	}
+	if (scene == gameover) {
+		player_->naosu();
+		if (input_->TriggerKey(DIK_SPACE)) {
+			scene = title;
+		}
+		if (input_->TriggerKey(DIK_R)) {
+			scene = main;
+			///初期化
+			delete player_;
+			delete enemy_;
+			//自キャラ生成
+			player_ = new Player();
+			//自キャラの初期化
+			player_->Initialize(textureHandle_);
+			//敵キャラ生成
+			enemy_ = new Enemy();
+			//敵キャラの初期化
+			enemy_->Initialize(
+			  model_, modelEnemy_, player_->GetWorldTransform(), player_->GetFrontVec());
+			enemy_->SetPlayer(player_);
+			deathTimer = deathTime;
+			moveCoolTimer = moveCoolTime;
+		}
 	}
 	if (scene == main) {
 
@@ -323,19 +366,6 @@ void GameScene::Update() {
 				cameraNum_ = 0;
 				cameraTimer = cameraTime;
 			}
-		}
-	}
-	if (scene == gameCrear) {
-		if (input_->TriggerKey(DIK_SPACE)) {
-			scene = title;
-		}
-	}
-	if (scene == gameover) {
-		if (input_->TriggerKey(DIK_SPACE)) {
-			scene = title;
-		}
-		if (input_->TriggerKey(DIK_R)) {
-			scene = main;
 		}
 	}
 }

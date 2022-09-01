@@ -101,8 +101,8 @@ void Enemy::ApproachFunc() {
 	coolTimer--;
 	if (hp == 4 && coolTimer == 0) {
 		Fire(Vector3(0, 0, 0), 0);
-		Fire(Vector3(2, 0, 0), 0);
-		Fire(Vector3(-2, 0, 0), 0);
+		Fire(Vector3(4, 0, 0), 0);
+		Fire(Vector3(-4, 0, 0), 0);
 	}
 	if (hp == 3 && coolTimer == 0) {
 		Fire(Vector3(-2, 0, 0), 0);
@@ -111,24 +111,24 @@ void Enemy::ApproachFunc() {
 		Fire(Vector3(-6, 0, 0), 1);
 	}
 	if (hp == 2 && coolTimer == 0) {
-		Fire(Vector3(-3, -1, 0), 1);
-		Fire(Vector3(3, -1, 0), 1);
-		Fire(Vector3(0, 1, 0), 0);
-		Fire(Vector3(3, 1, 0), 0);
-		Fire(Vector3(0, -1, 0), 1);
-		Fire(Vector3(-3, 1, 0), 0);
+		Fire(Vector3(-4, -2, 0), 1);
+		Fire(Vector3(4, -2, 0), 1);
+		Fire(Vector3(0, 2, 0), 0);
+		Fire(Vector3(4, 2, 0), 0);
+		Fire(Vector3(0, -2, 0), 1);
+		Fire(Vector3(-4, 2, 0), 0);
 	}
 	if (hp == 1 && coolTimer == 0) {
-		Fire(Vector3(-6, 1, 0), 0);
-		Fire(Vector3(-3, 1, 0), 0);
-		Fire(Vector3(0, 1, 0), 0);
-		Fire(Vector3(3, 1, 0), 0);
-		Fire(Vector3(6, 1, 0), 0);
-		Fire(Vector3(-6, -1, 0), 1);
-		Fire(Vector3(-3, -1, 0), 1);
-		Fire(Vector3(0, -1, 0), 1);
-		Fire(Vector3(3, -1, 0), 1);
-		Fire(Vector3(6, -1, 0), 1);
+		Fire(Vector3(-4, -2, 0), 1);
+		Fire(Vector3(8, 2, 0), 0);
+		Fire(Vector3(4, 2, 0), 0);
+		Fire(Vector3(-8, -2, 0), 1);
+		Fire(Vector3(4, -2, 0), 1);
+		Fire(Vector3(0, -2, 0), 1);
+		Fire(Vector3(-4, 2, 0), 0);
+		Fire(Vector3(-8, 2, 0), 0);
+		Fire(Vector3(0, 2, 0), 0);
+		Fire(Vector3(8, -2, 0), 1);
 	}
 
 	//Šù’è‚ÌˆÊ’u‚Ü‚Å—ˆ‚½‚ç—£’E
